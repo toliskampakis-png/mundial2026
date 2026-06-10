@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚽ Μουντιάλ 2026</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark: #0d5c22;
+      --green-mid: #1a6b2a;
+      --green-light: #2d9e42;
+      --gold: #FFD700;
+      --gold-dark: #8B6914;
+      --white: #ffffff;
+      --card-bg: rgba(255,255,255,0.12);
+      --card-border: rgba(255,255,255,0.25);
+    }
+
+    body {
+      font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
+      background: linear-gradient(160deg, #0d5c22 0%, #1a6b2a 30%, #2d9e42 60%, #1a8a3a 80%, #0d5c22 100%);
+      min-height: 100vh;
+      padding-bottom: 30px;
+    }
+
+    /* ── TABS ── */
+    .tab-bar {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 16px 12px 0;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.85);
+      font-family: inherit;
+      font-size: clamp(13px, 3.5vw, 18px);
+      font-weight: 900;
+      padding: 10px 18px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all .2s;
+      letter-spacing: .5px;
+    }
+    .tab-btn:hover { background: rgba(255,255,255,0.25); }
+    .tab-btn.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #1a1a00;
+      box-shadow: 0 4px 18px rgba(255,215,0,.45);
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── CONTAINER ── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 14px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      text-align: center;
+      padding: 20px 0 14px;
+    }
+    .ball-bounce {
+      font-size: clamp(50px, 12vw, 80px);
+      display: inline-block;
+      animation: bounce 1.2s ease-in-out infinite;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0) rotate(0deg); }
+      50%      { transform: translateY(-18px) rotate(14deg); }
+    }
+    .title {
+      font-size: clamp(28px, 8vw, 60px);
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 4px 4px 0 var(--green-dark), 0 0 40px rgba(255,220,0,.5);
+      line-height: 1.1;
+    }
+    .title span { color: var(--gold); text-shadow: 4px 4px 0 var(--gold-dark), 0 0 40px rgba(255,220,0,.8); }
+    .subtitle { font-size: clamp(12px, 3vw, 18px); color: #b8ffc0; margin-top: 6px; font-weight: 700; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      border: 2px solid var(--card-border);
+      padding: 20px;
+      margin: 14px 0;
+      box-shadow: 0 8px 32px rgba(0,0,0,.25);
+    }
+
+    /* ── COUNTDOWN ── */
+    .next-label { font-size: clamp(12px,3vw,17px); color: #90EE90; font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-bottom:10px; }
+    .next-teams { font-size: clamp(20px,6vw,40px); font-weight:900; color:#fff; text-shadow:2px 2px 8px rgba(0,0,0,.5); margin:8px 0; }
+    .next-info  { font-size: clamp(12px,3vw,17px); color: var(--gold); font-weight:700; margin-bottom:16px; }
+    .cd-boxes   { display:flex; justify-content:center; gap:clamp(6px,3vw,18px); flex-wrap:wrap; }
+    .cd-box {
+      background: linear-gradient(135deg, #FFD700, #FF8C00);
+      border-radius: 18px;
+      padding: clamp(10px,2.5vw,18px) clamp(14px,4vw,28px);
+      min-width: clamp(65px,16vw,105px);
+      box-shadow: 0 5px 18px rgba(0,0,0,.3), inset 0 2px 4px rgba(255,255,255,.3);
+      text-align: center;
+    }
+    .cd-num   { font-size: clamp(32px,10vw,68px); font-weight:900; color:#1a1a00; line-height:1; display:block; }
+    .cd-label { font-size: clamp(10px,2vw,14px); font-weight:900; color:#3a1a00; text-transform:uppercase; letter-spacing:1px; }
+    .live-badge {
+      display:inline-block; background:#FF3333; color:#fff;
+      font-size:clamp(14px,3.5vw,20px); font-weight:900; padding:10px 26px;
+      border-radius:50px; animation:pulse 1s ease-in-out infinite;
+      text-transform:uppercase; letter-spacing:2px;
+    }
+    @keyframes pulse {
+      0%,100% { transform:scale(1); box-shadow:0 0 0 0 rgba(255,51,51,.5); }
+      50%      { transform:scale(1.06); box-shadow:0 0 0 12px rgba(255,51,51,0); }
+    }
+
+    /* ── SCHEDULE ── */
+    .section-title {
+      text-align:center; font-size:clamp(18px,5vw,32px); font-weight:900;
+      color: var(--gold); text-shadow:3px 3px 0 rgba(0,0,0,.35);
+      margin: 18px 0 12px; letter-spacing:1px;
+    }
+    .day-group { background:var(--card-bg); backdrop-filter:blur(8px); border-radius:22px; border:2px solid var(--card-border); margin-bottom:12px; overflow:hidden; box-shadow:0 6px 24px rgba(0,0,0,.22); }
+    .day-header { background:linear-gradient(135deg,rgba(255,215,0,.28),rgba(255,140,0,.28)); padding:10px 18px; font-size:clamp(14px,4vw,20px); font-weight:900; color:var(--gold); border-bottom:1.5px solid rgba(255,215,0,.2); }
+    .match-row { padding:12px 18px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .match-row:last-child { border-bottom:none; }
+    .match-row.is-live { background:rgba(255,50,50,.15); border-left:4px solid #FF3333; }
+    .match-time  { font-size:clamp(15px,4vw,22px); font-weight:900; color:var(--gold); min-width:60px; }
+    .match-teams { flex:1; font-size:clamp(14px,3.8vw,20px); font-weight:900; color:#fff; min-width:180px; }
+    .match-teams .vs { color:#90EE90; font-size:.75em; padding:0 5px; }
+    .match-city { font-size:clamp(9px,2vw,12px); color:rgba(255,255,255,.55); font-weight:700; margin-top:2px; }
+    .result-badge { font-size:clamp(14px,4vw,22px); font-weight:900; background:rgba(255,255,255,.14); border:2px solid rgba(255,255,255,.3); border-radius:10px; padding:4px 12px; color:#fff; min-width:70px; text-align:center; }
+    .result-badge.done { background:rgba(255,215,0,.2); border-color:var(--gold); color:var(--gold); }
+    .ch { font-size:clamp(9px,2.2vw,13px); font-weight:900; padding:4px 8px; border-radius:7px; white-space:nowrap; }
+    .ch-ert1 { background:#003399; color:#fff; border:1.5px solid #6699FF; }
+    .ch-ert2 { background:#005500; color:#fff; border:1.5px solid #66FF66; }
+
+    /* fun facts */
+    .fun-card { text-align:center; }
+    .fun-card p { font-size:clamp(14px,3.5vw,19px); color:#c8ffc0; font-weight:700; line-height:1.6; }
+    .fun-card strong { color:var(--gold); }
+
+    /* ════════════════════════════════════
+       PREDICTIONS TAB
+    ════════════════════════════════════ */
+    .pred-header { text-align:center; margin-bottom:8px; }
+    .pred-header p { color:#c8ffc0; font-size:clamp(13px,3vw,17px); font-weight:700; margin-top:6px; }
+
+    /* Name form */
+    .name-form { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:14px 0; }
+    .name-input {
+      flex:1; min-width:180px; max-width:280px;
+      padding:12px 18px; border-radius:50px; border:3px solid var(--gold);
+      font-family:inherit; font-size:clamp(15px,4vw,20px); font-weight:900;
+      background:rgba(255,255,255,.9); color:#1a1a00; outline:none;
+    }
+    .btn-primary {
+      background:linear-gradient(135deg, var(--gold), #FF8C00);
+      border:none; border-radius:50px; padding:12px 26px;
+      font-family:inherit; font-size:clamp(15px,4vw,20px); font-weight:900;
+      color:#1a1a00; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.3);
+      transition:transform .15s;
+    }
+    .btn-primary:hover { transform:scale(1.05); }
+    .btn-secondary {
+      background:rgba(255,255,255,.2); border:2px solid rgba(255,255,255,.4);
+      border-radius:50px; padding:8px 18px;
+      font-family:inherit; font-size:clamp(12px,3vw,15px); font-weight:900;
+      color:#fff; cursor:pointer; transition:background .2s;
+    }
+    .btn-secondary:hover { background:rgba(255,255,255,.3); }
+
+    .greeting { text-align:center; font-size:clamp(16px,4.5vw,26px); font-weight:900; color:var(--gold); margin:8px 0; }
+
+    /* Prediction cards */
+    .pred-match-card {
+      background:var(--card-bg); backdrop-filter:blur(8px);
+      border-radius:22px; border:2px solid var(--card-border);
+      padding:18px 16px; margin-bottom:12px;
+      box-shadow:0 6px 24px rgba(0,0,0,.22);
+      transition:border-color .2s;
+    }
+    .pred-match-card.predicted { border-color:rgba(0,255,100,.5); }
+    .pred-match-card.correct   { border-color:#FFD700; background:rgba(255,215,0,.12); }
+    .pred-match-card.wrong     { border-color:rgba(255,80,80,.5); background:rgba(255,80,80,.08); }
+
+    .pred-match-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+    .pred-match-date { font-size:clamp(11px,2.5vw,14px); color:#90EE90; font-weight:700; }
+    .pred-match-teams-big { font-size:clamp(18px,5vw,28px); font-weight:900; color:#fff; text-align:center; margin-bottom:12px; }
+
+    /* Pick buttons */
+    .pick-btns { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+    .pick-btn {
+      flex:1; min-width:90px; max-width:200px;
+      padding:12px 8px; border-radius:18px;
+      font-family:inherit; font-size:clamp(13px,3.5vw,17px); font-weight:900;
+      border:3px solid rgba(255,255,255,.3);
+      background:rgba(255,255,255,.12); color:#fff;
+      cursor:pointer; transition:all .18s; text-align:center; line-height:1.3;
+    }
+    .pick-btn:hover { background:rgba(255,255,255,.25); transform:translateY(-2px); }
+    .pick-btn.selected { border-color:var(--gold); background:rgba(255,215,0,.25); color:var(--gold); transform:scale(1.04); }
+    .pick-btn.correct-pick { border-color:#00ff66; background:rgba(0,255,102,.2); color:#00ff66; }
+    .pick-btn.wrong-pick   { border-color:rgba(255,80,80,.8); background:rgba(255,80,80,.15); color:rgba(255,150,150,1); }
+
+    .pred-result-label { text-align:center; font-size:clamp(12px,3vw,16px); font-weight:900; margin-top:10px; }
+    .pred-result-label.correct { color:#00ff66; }
+    .pred-result-label.wrong   { color:rgba(255,130,130,1); }
+
+    /* LEADERBOARD */
+    .leaderboard { }
+    .lb-row {
+      display:flex; align-items:center; gap:12px;
+      padding:12px 16px; border-bottom:1px solid rgba(255,255,255,.1);
+    }
+    .lb-row:last-child { border-bottom:none; }
+    .lb-rank { font-size:clamp(20px,5vw,30px); font-weight:900; min-width:36px; text-align:center; }
+    .lb-name { flex:1; font-size:clamp(15px,4vw,22px); font-weight:900; color:#fff; }
+    .lb-score { font-size:clamp(18px,5vw,28px); font-weight:900; color:var(--gold); }
+    .lb-detail { font-size:clamp(10px,2.5vw,13px); color:rgba(255,255,255,.6); font-weight:700; }
+    .lb-empty { text-align:center; color:rgba(255,255,255,.5); font-size:clamp(14px,3.5vw,18px); font-weight:700; padding:20px; }
+
+    /* ════════════════════════════════════
+       QUIZ TAB
+    ════════════════════════════════════ */
+    .quiz-header { text-align:center; }
+    .quiz-header p { color:#c8ffc0; font-size:clamp(13px,3vw,17px); font-weight:700; margin-top:6px; }
+
+    .quiz-progress { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin:14px 0; }
+    .qp-dot { width:clamp(10px,3vw,16px); height:clamp(10px,3vw,16px); border-radius:50%; background:rgba(255,255,255,.25); transition:background .3s; }
+    .qp-dot.done    { background:#00cc55; }
+    .qp-dot.correct { background:#FFD700; }
+    .qp-dot.wrong   { background:#FF4444; }
+    .qp-dot.current { background:#fff; animation:pulse 1s infinite; }
+
+    .quiz-q-num { text-align:center; font-size:clamp(12px,3vw,16px); color:#90EE90; font-weight:700; margin-bottom:8px; }
+    .quiz-question {
+      font-size:clamp(17px,4.5vw,26px); font-weight:900; color:#fff;
+      text-align:center; line-height:1.4; margin-bottom:20px;
+      text-shadow:2px 2px 6px rgba(0,0,0,.4);
+    }
+    .quiz-opts { display:flex; flex-direction:column; gap:10px; }
+    .quiz-opt {
+      display:flex; align-items:center; gap:14px;
+      padding:14px 18px; border-radius:18px;
+      border:2.5px solid rgba(255,255,255,.3);
+      background:rgba(255,255,255,.1);
+      font-family:inherit; font-size:clamp(14px,3.8vw,20px); font-weight:900;
+      color:#fff; cursor:pointer; transition:all .18s; text-align:left;
+    }
+    .quiz-opt:hover:not(:disabled) { background:rgba(255,255,255,.22); transform:translateX(4px); }
+    .quiz-opt .opt-letter {
+      width:clamp(32px,7vw,42px); height:clamp(32px,7vw,42px);
+      border-radius:50%; background:var(--gold); color:#1a1a00;
+      display:flex; align-items:center; justify-content:center;
+      font-size:clamp(14px,3.5vw,20px); font-weight:900; flex-shrink:0;
+    }
+    .quiz-opt.correct-ans  { border-color:#00ff66; background:rgba(0,255,102,.18); }
+    .quiz-opt.correct-ans .opt-letter { background:#00ff66; }
+    .quiz-opt.wrong-ans    { border-color:#FF4444; background:rgba(255,68,68,.15); }
+    .quiz-opt.wrong-ans .opt-letter { background:#FF4444; color:#fff; }
+    .quiz-opt.reveal-right { border-color:#00ff66; background:rgba(0,255,102,.12); }
+    .quiz-opt.reveal-right .opt-letter { background:#00ff66; }
+    .quiz-opt:disabled { cursor:default; }
+
+    .quiz-feedback {
+      text-align:center; font-size:clamp(20px,6vw,36px); font-weight:900;
+      margin:16px 0 10px; min-height:50px; transition:all .2s;
+    }
+    .quiz-feedback.correct-fb { color:#00ff66; }
+    .quiz-feedback.wrong-fb   { color:#FF6666; }
+    .quiz-explain { text-align:center; font-size:clamp(12px,3vw,16px); color:#c8ffc0; font-weight:700; min-height:24px; }
+
+    .btn-next {
+      display:block; margin:18px auto 0;
+      background:linear-gradient(135deg, var(--gold), #FF8C00);
+      border:none; border-radius:50px; padding:14px 36px;
+      font-family:inherit; font-size:clamp(15px,4vw,21px); font-weight:900;
+      color:#1a1a00; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.3);
+      transition:transform .15s;
+    }
+    .btn-next:hover { transform:scale(1.06); }
+    .btn-next:disabled { opacity:.4; cursor:default; transform:none; }
+
+    /* SCORE SCREEN */
+    .score-screen { text-align:center; padding:20px; }
+    .score-emoji { font-size:80px; margin-bottom:10px; }
+    .score-title { font-size:clamp(26px,7vw,50px); font-weight:900; color:var(--gold); text-shadow:3px 3px 0 var(--gold-dark); }
+    .score-sub   { font-size:clamp(15px,4vw,24px); color:#c8ffc0; font-weight:700; margin:10px 0; }
+    .score-num   { font-size:clamp(48px,14vw,90px); font-weight:900; color:#fff; text-shadow:4px 4px 0 var(--green-dark); }
+
+    /* footer */
+    .footer { text-align:center; color:rgba(255,255,255,.4); font-size:12px; padding:20px; font-weight:700; }
+
+    @media(max-width:480px){
+      .match-city { display:none; }
+      .pick-btn { min-width:70px; padding:10px 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('home')">🏠 Αρχική</button>
+  <button class="tab-btn" onclick="showTab('predictions')">🎯 Προβλέψεις</button>
+  <button class="tab-btn" onclick="showTab('quiz')">❓ Quiz</button>
+</div>
+
+<!-- ════════════ HOME TAB ════════════ -->
+<div id="tab-home" class="tab-panel active">
+<div class="container">
+
+  <div class="header">
+    <div class="ball-bounce">⚽</div>
+    <div class="title">Μουντιάλ <span>2026</span></div>
+    <div class="subtitle">🏆 Παγκόσμιο Κύπελλο · ΗΠΑ · Μεξικό · Καναδάς 🏆</div>
+  </div>
+
+  <!-- Countdown -->
+  <div class="card" style="text-align:center;">
+    <div class="next-label">🎯 Επόμενος Αγώνας</div>
+    <div class="next-teams" id="nextTeams">⏳</div>
+    <div class="next-info"  id="nextInfo"></div>
+    <div class="cd-boxes" id="cdBoxes">
+      <div class="cd-box"><span class="cd-num" id="cdD">--</span><span class="cd-label">Μέρες</span></div>
+      <div class="cd-box"><span class="cd-num" id="cdH">--</span><span class="cd-label">Ώρες</span></div>
+      <div class="cd-box"><span class="cd-num" id="cdM">--</span><span class="cd-label">Λεπτά</span></div>
+      <div class="cd-box"><span class="cd-num" id="cdS">--</span><span class="cd-label">Δευτ/τα</span></div>
+    </div>
+  </div>
+
+  <!-- Fun facts -->
+  <div class="card fun-card">
+    <p>⚽ Φέτος παίζουν <strong>48 χώρες</strong> από όλον τον κόσμο!<br>
+    🌍 Αγώνες στις <strong>ΗΠΑ, Μεξικό και Καναδά</strong>.<br>
+    🏆 Πρωταθλήτρια Κόσμου είναι η <strong>Αργεντινή 🇦🇷</strong>!</p>
+  </div>
+
+  <!-- Schedule -->
+  <div class="section-title">📺 Πρόγραμμα στην ΕΡΤ</div>
+  <div id="schedContainer"></div>
+
+  <div class="footer">Δεδομένα από ertsports.gr · Ώρα Ελλάδος (EEST)</div>
+</div>
+</div><!-- /home -->
+
+
+<!-- ════════════ PREDICTIONS TAB ════════════ -->
+<div id="tab-predictions" class="tab-panel">
+<div class="container">
+  <div class="header pred-header">
+    <div style="font-size:clamp(36px,10vw,65px);">🎯</div>
+    <div class="title">Προβλέψεις</div>
+    <p>Ποια ομάδα θα κερδίσει; Διάλεξε και κέρδισε πόντους!</p>
+  </div>
+
+  <!-- Name section -->
+  <div class="card" id="nameSection">
+    <div style="text-align:center;font-size:clamp(16px,4vw,22px);color:#fff;font-weight:900;margin-bottom:12px;">✏️ Πες μας το όνομά σου!</div>
+    <div class="name-form">
+      <input class="name-input" id="nameInput" type="text" placeholder="Το όνομά μου..." maxlength="20">
+      <button class="btn-primary" onclick="setPlayer()">Ξεκινάω! 🚀</button>
+    </div>
+  </div>
+
+  <div id="playerGreeting" style="display:none;" class="card" style="text-align:center;">
+    <div class="greeting" id="greetingText"></div>
+    <div style="text-align:center;margin-top:8px;">
+      <button class="btn-secondary" onclick="changePlayer()">↩ Αλλαγή ονόματος</button>
+    </div>
+  </div>
+
+  <!-- Predictions -->
+  <div class="section-title">⚽ Επέλεξε νικητή για κάθε αγώνα</div>
+  <div id="predMatchList"></div>
+
+  <!-- Leaderboard -->
+  <div class="section-title">🏆 Βαθμολογία</div>
+  <div class="card">
+    <div id="leaderboard"></div>
+  </div>
+
+  <div class="footer">3 πόντοι για κάθε σωστή πρόβλεψη!</div>
+</div>
+</div><!-- /predictions -->
+
+
+<!-- ════════════ QUIZ TAB ════════════ -->
+<div id="tab-quiz" class="tab-panel">
+<div class="container">
+  <div class="header quiz-header">
+    <div style="font-size:clamp(36px,10vw,65px);">🧠</div>
+    <div class="title">Quiz Μουντιάλ</div>
+    <p>15 ερωτήσεις για τους ειδήμονες του ποδοσφαίρου!</p>
+  </div>
+
+  <div class="card" id="quizCard">
+    <!-- progress dots -->
+    <div class="quiz-progress" id="quizProgress"></div>
+    <div class="quiz-q-num" id="quizQNum"></div>
+    <div class="quiz-question" id="quizQuestion"></div>
+    <div class="quiz-opts" id="quizOpts"></div>
+    <div class="quiz-feedback" id="quizFeedback"></div>
+    <div class="quiz-explain"  id="quizExplain"></div>
+    <button class="btn-next" id="btnNext" onclick="nextQuestion()" disabled>Επόμενη ➡️</button>
+  </div>
+
+  <!-- Score screen (hidden until quiz done) -->
+  <div class="card score-screen" id="scoreScreen" style="display:none;">
+    <div class="score-emoji" id="scoreEmoji"></div>
+    <div class="score-title">Το σκορ σου:</div>
+    <div class="score-num" id="scoreNum"></div>
+    <div class="score-sub"  id="scoreSub"></div>
+    <button class="btn-primary" onclick="restartQuiz()" style="margin-top:18px;">🔄 Ξανά!</button>
+  </div>
+
+  <div class="footer">Καλή επιτυχία! ⚽</div>
+</div>
+</div><!-- /quiz -->
+
+
+<script>
+/* ============================================================
+   DATA
+============================================================ */
+const MATCHES = [
+  { id:'m1',  date:'2026-06-11', time:'22:00', home:'🇲🇽 Μεξικό',       away:'🇿🇦 Ν. Αφρική',  city:'Μέξικο Σίτι',    ch:['ΕΡΤ1','ΕΡΤ2 ΣΠΟΡ'], result:null },
+  { id:'m2',  date:'2026-06-12', time:'05:00', home:'🇰🇷 Ν. Κορέα',      away:'🇨🇿 Τσεχία',      city:'Γουαδαλαχάρα',   ch:['ΕΡΤ1'],              result:null },
+  { id:'m3',  date:'2026-06-12', time:'22:00', home:'🇨🇦 Καναδάς',        away:'🇧🇦 Βοσνία',      city:'Τορόντο',        ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
+  { id:'m4',  date:'2026-06-13', time:'04:00', home:'🇺🇸 ΗΠΑ',            away:'🇵🇾 Παραγουάη',   city:'Λος Άντζελες',   ch:['ΕΡΤ1'],              result:null },
+  { id:'m5',  date:'2026-06-13', time:'22:00', home:'🇶🇦 Κατάρ',          away:'🇨🇭 Ελβετία',     city:'Σαν Φρανσίσκο',  ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
+  { id:'m6',  date:'2026-06-14', time:'01:00', home:'🇧🇷 Βραζιλία',       away:'🇲🇦 Μαρόκο',      city:'Νέα Υόρκη',      ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
+  { id:'m7',  date:'2026-06-14', time:'04:00', home:'🇭🇹 Αϊτή',           away:'🏴󠁧󠁢󠁳󠁣󠁴󠁿 Σκωτία',    city:'Βοστώνη',        ch:['ΕΡΤ1'],              result:null },
+  { id:'m8',  date:'2026-06-14', time:'07:00', home:'🇦🇺 Αυστραλία',      away:'🇹🇷 Τουρκία',     city:'Βανκούβερ',      ch:['ΕΡΤ1'],              result:null },
+  { id:'m9',  date:'2026-06-14', time:'20:00', home:'🇩🇪 Γερμανία',       away:'🇨🇼 Κουρασάο',    city:'Χιούστον',       ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
+  { id:'m10', date:'2026-06-14', time:'23:00', home:'🇳🇱 Ολλανδία',       away:'🇯🇵 Ιαπωνία',     city:'Ντάλας',         ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
+  { id:'m11', date:'2026-06-15', time:'02:00', home:'🇨🇮 Ακτή Ελεφ.',    away:'🇪🇨 Εκουαδόρ',    city:'Φιλαδέλφεια',    ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
+  { id:'m12', date:'2026-06-15', time:'05:00', home:'🇸🇪 Σουηδία',        away:'🇹🇳 Τυνησία',     city:'Μοντερέι',       ch:['ΕΡΤ1'],              result:null },
+];
+
+const DAY_NAMES = {
+  '2026-06-11':'Πέμπτη 11 Ιουνίου 🎉 ΠΡΕΜΙΕΡΑ!',
+  '2026-06-12':'Παρασκευή 12 Ιουνίου',
+  '2026-06-13':'Σάββατο 13 Ιουνίου',
+  '2026-06-14':'Κυριακή 14 Ιουνίου',
+  '2026-06-15':'Δευτέρα 15 Ιουνίου',
+};
+
+/* result: 'home' | 'draw' | 'away' | null */
+
+/* ── QUIZ DATA ── */
+const QUIZ = [
+  { q:'Σε ποιες χώρες γίνεται το Μουντιάλ 2026;', opts:['Βραζιλία & Αργεντινή','ΗΠΑ, Μεξικό & Καναδάς','Γερμανία & Γαλλία'], ans:1, explain:'Φέτος για πρώτη φορά το Μουντιάλ γίνεται σε 3 χώρες ταυτόχρονα!' },
+  { q:'Πόσες χώρες παίζουν στο Μουντιάλ 2026;', opts:['32 χώρες','24 χώρες','48 χώρες'], ans:2, explain:'Είναι το πρώτο Μουντιάλ με 48 ομάδες!' },
+  { q:'Ποια χώρα είναι πρωταθλήτρια κόσμου αυτή τη στιγμή;', opts:['Βραζιλία 🇧🇷','Γαλλία 🇫🇷','Αργεντινή 🇦🇷'], ans:2, explain:'Η Αργεντινή κέρδισε το Μουντιάλ 2022 στο Κατάρ!' },
+  { q:'Πόσους παίκτες έχει κάθε ομάδα μέσα στο γήπεδο;', opts:['10 παίκτες','11 παίκτες','12 παίκτες'], ans:1, explain:'11 παίκτες κάθε ομάδα, συν 1 τερματοφύλακα!' },
+  { q:'Τι χρώμα κάρτα αποβάλλει έναν παίκτη αμέσως;', opts:['Κίτρινη 🟨','Κόκκινη 🟥','Μπλε 🟦'], ans:1, explain:'Η κόκκινη κάρτα σε βγάζει εκτός αγώνα!' },
+  { q:'Πόση ώρα διαρκεί ένας κανονικός ποδοσφαιρικός αγώνας;', opts:['60 λεπτά','90 λεπτά','120 λεπτά'], ans:1, explain:'90 λεπτά — δύο ημίχρονα των 45 λεπτών!' },
+  { q:'Ποια χώρα έχει κερδίσει τα περισσότερα Μουντιάλ;', opts:['Βραζιλία 🇧🇷','Γερμανία 🇩🇪','Ιταλία 🇮🇹'], ans:0, explain:'Η Βραζιλία έχει 5 κύπελλα — ρεκόρ!' },
+  { q:'Πού έγινε το Μουντιάλ 2022;', opts:['Ρωσία 🇷🇺','Κατάρ 🇶🇦','Βραζιλία 🇧🇷'], ans:1, explain:'Το Κατάρ ήταν η πρώτη αραβική χώρα που έκανε Μουντιάλ!' },
+  { q:'Ποιος είναι ο διάσημος Αργεντινός παίκτης που κέρδισε το Μουντιάλ 2022;', opts:['Κριστιάνο Ρονάλντο','Νέιμαρ','Λιονέλ Μέσι'], ans:2, explain:'Ο Μέσι θεωρείται από πολλούς ο καλύτερος παίκτης όλων των εποχών!' },
+  { q:'Ποιος παίκτης έχει σκοράρει τα περισσότερα γκολ σε Μουντιάλ (16 γκολ);', opts:['Ρονάλντο','Μίροσλαβ Κλόζε','Πελέ'], ans:1, explain:'Ο Γερμανός Κλόζε είναι ο κορυφαίος σκόρερ στην ιστορία του Μουντιάλ!' },
+  { q:'Πότε έγινε το πρώτο Μουντιάλ στην ιστορία;', opts:['1930','1950','1966'], ans:0, explain:'Το πρώτο Μουντιάλ έγινε το 1930 στην Ουρουγουάη — και η Ουρουγουάη το κέρδισε!' },
+  { q:'Πώς λέγεται ο παίκτης που υπερασπίζεται το τέρμα;', opts:['Επιθετικός','Μέσος','Τερματοφύλακας / Γκολκίπερ'], ans:2, explain:'Ο γκολκίπερ φοράει διαφορετική φανέλα από τους υπόλοιπους!' },
+  { q:'Πόσα γκολ σκόραρε η Βραζιλία στο Μουντιάλ 1970, το πιο όμορφο Μουντιάλ;', opts:['10 γκολ','19 γκολ','19+ γκολ'], ans:1, explain:'Η Βραζιλία του Πελέ σκόραρε 19 γκολ και κέρδισε το τρόπαιο αήττητη!' },
+  { q:'Σε ποια χώρα γίνεται ο Τελικός του Μουντιάλ 2026;', opts:['ΗΠΑ (Νέα Υόρκη)','Μεξικό (Μέξικο Σίτι)','Καναδάς (Τορόντο)'], ans:0, explain:'Ο Τελικός γίνεται στο MetLife Stadium κοντά στη Νέα Υόρκη στις 19 Ιουλίου!' },
+  { q:'Τι χρώμα έχει η φανέλα της Βραζιλίας;', opts:['Μπλε & Κόκκινη','Κίτρινη & Πράσινη','Λευκή & Μαύρη'], ans:1, explain:'Κίτρινο & πράσινο — τα χρώματα της Βραζιλίας! 🇧🇷' },
+];
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function pad(n){ return String(n).padStart(2,'0'); }
+
+function matchDT(m){
+  const [y,mo,d] = m.date.split('-').map(Number);
+  const [h,mi]   = m.time.split(':').map(Number);
+  return new Date(Date.UTC(y,mo-1,d,h-3,mi)); // EEST = UTC+3
+}
+
+function isLive(m){
+  const n=new Date(), dt=matchDT(m);
+  return n>=dt && n<=new Date(dt.getTime()+110*60*1000);
+}
+function isDone(m){
+  return new Date() > new Date(matchDT(m).getTime()+110*60*1000);
+}
+
+/* ── TAB SWITCHING ── */
+function showTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+  if(id==='predictions') renderPredictions();
+  if(id==='quiz') initQuiz();
+}
+
+/* ============================================================
+   HOME TAB
+============================================================ */
+function updateCountdown(){
+  const now=new Date();
+  let next=null;
+  for(const m of MATCHES){
+    const dt=matchDT(m);
+    if(isLive(m)){
+      document.getElementById('nextTeams').textContent=m.home+' ⚽ '+m.away;
+      document.getElementById('nextInfo').textContent='📍 '+m.city+' · '+m.ch.join(' & ');
+      document.getElementById('cdBoxes').innerHTML='<span class="live-badge">🔴 Παίζει ΤΩΡΑ!</span>';
+      return;
+    }
+    if(dt>now && !next){ next={m,dt}; }
+  }
+  if(!next){
+    document.getElementById('nextTeams').textContent='🏆 Μουντιάλ 2026 — ολοκληρώθηκε!';
+    document.getElementById('nextInfo').textContent='';
+    document.getElementById('cdBoxes').innerHTML='';
+    return;
+  }
+  const {m,dt}=next;
+  const diff=dt-now;
+  const days=Math.floor(diff/86400000);
+  const hrs =Math.floor((diff%86400000)/3600000);
+  const mins=Math.floor((diff%3600000)/60000);
+  const secs=Math.floor((diff%60000)/1000);
+  document.getElementById('nextTeams').textContent=m.home+' ⚽ '+m.away;
+  document.getElementById('nextInfo').textContent='📅 '+m.date.split('-').reverse().slice(0,2).join('/')+' στις '+m.time+' · '+m.ch.join(' & ');
+  document.getElementById('cdD').textContent=pad(days);
+  document.getElementById('cdH').textContent=pad(hrs);
+  document.getElementById('cdM').textContent=pad(mins);
+  document.getElementById('cdS').textContent=pad(secs);
+}
+
+function buildSchedule(){
+  const days={};
+  for(const m of MATCHES){
+    if(!days[m.date]) days[m.date]=[];
+    days[m.date].push(m);
+  }
+  let html='';
+  for(const [date,ms] of Object.entries(days)){
+    html+=`<div class="day-group"><div class="day-header">📅 ${DAY_NAMES[date]||date}</div>`;
+    for(const m of ms){
+      const live=isLive(m), done=isDone(m);
+      const chs=m.ch.map(c=>`<span class="ch ${c.includes('1')&&!c.includes('2')?'ch-ert1':'ch-ert2'}">${c}</span>`).join(' ');
+      let badge='';
+      if(live) badge='<span class="live-badge" style="font-size:13px;padding:6px 14px;">🔴 LIVE</span>';
+      else if(done&&m.result) badge=`<span class="result-badge done">${m.result}</span>`;
+      else if(done) badge='<span class="result-badge done">✔</span>';
+      else badge='<span class="result-badge">vs</span>';
+      html+=`<div class="match-row${live?' is-live':''}">
+        <span class="match-time">${m.time}</span>
+        <div class="match-teams">${m.home}<span class="vs">⚽</span>${m.away}<div class="match-city">📍 ${m.city}</div></div>
+        ${badge} ${chs}</div>`;
+    }
+    html+='</div>';
+  }
+  document.getElementById('schedContainer').innerHTML=html;
+}
+
+/* ============================================================
+   PREDICTIONS TAB
+============================================================ */
+const LS_PLAYER = 'mundial26_player';
+const LS_PREDS  = 'mundial26_preds'; // { playerName: { matchId: 'home'|'draw'|'away' } }
+
+function getPreds(){ try{ return JSON.parse(localStorage.getItem(LS_PREDS)||'{}'); }catch(e){ return {}; } }
+function savePreds(obj){ localStorage.setItem(LS_PREDS,JSON.stringify(obj)); }
+function getPlayer(){ return localStorage.getItem(LS_PLAYER)||''; }
+function savePlayer(n){ localStorage.setItem(LS_PLAYER,n); }
+
+function setPlayer(){
+  const v=document.getElementById('nameInput').value.trim();
+  if(!v){ alert('Γράψε το όνομά σου!'); return; }
+  savePlayer(v);
+  showPlayerUI(v);
+  renderPredictions();
+}
+
+function changePlayer(){
+  savePlayer('');
+  document.getElementById('playerGreeting').style.display='none';
+  document.getElementById('nameSection').style.display='';
+  document.getElementById('nameInput').value='';
+}
+
+function showPlayerUI(name){
+  document.getElementById('nameSection').style.display='none';
+  const g=document.getElementById('playerGreeting');
+  g.style.display='';
+  document.getElementById('greetingText').textContent='👋 Γεια σου, '+name+'!';
+}
+
+function renderPredictions(){
+  const player=getPlayer();
+  if(player){
+    showPlayerUI(player);
+  } else {
+    document.getElementById('nameSection').style.display='';
+    document.getElementById('playerGreeting').style.display='none';
+  }
+
+  const preds=getPreds();
+  const myPreds=preds[player]||{};
+
+  let html='';
+  for(const m of MATCHES){
+    const live=isLive(m), done=isDone(m);
+    const result=m.result; // null | 'home' | 'draw' | 'away'
+    const pick=myPreds[m.id]; // my pick
+
+    let cardClass='pred-match-card';
+    if(pick&&result){
+      cardClass+=(pick===result?' correct':' wrong');
+    } else if(pick){
+      cardClass+=' predicted';
+    }
+
+    let feedbackHtml='';
+    if(pick&&result){
+      const ok=pick===result;
+      feedbackHtml=`<div class="pred-result-label ${ok?'correct':'wrong'}">${ok?'✅ Σωστά! +3 πόντοι 🎉':'❌ Λάθος, επόμενη φορά!'}</div>`;
+    }
+
+    const disabled=(done||live||!player)?'disabled':'';
+    const homeClass=`pick-btn${pick==='home'?(result?pick==='home'&&result==='home'?' correct-pick':pick==='home'&&result&&result!=='home'?' wrong-pick':' selected':' selected'):''}`;
+    const drawClass=`pick-btn${pick==='draw'?(result?pick==='draw'&&result==='draw'?' correct-pick':pick==='draw'&&result&&result!=='draw'?' wrong-pick':' selected':' selected'):''}`;
+    const awayClass=`pick-btn${pick==='away'?(result?pick==='away'&&result==='away'?' correct-pick':pick==='away'&&result&&result!=='away'?' wrong-pick':' selected':' selected'):''}`;
+
+    // reveal correct if done
+    const hExtra=result==='home'&&pick&&pick!=='home'?' reveal-right':'';
+    const dExtra=result==='draw'&&pick&&pick!=='draw'?' reveal-right':'';
+    const aExtra=result==='away'&&pick&&pick!=='away'?' reveal-right':'';
+
+    html+=`<div class="${cardClass}">
+      <div class="pred-match-header">
+        <span class="pred-match-date">📅 ${m.date.split('-').reverse().slice(0,2).join('/')} · ${m.time}</span>
+        ${live?'<span class="live-badge" style="font-size:12px;padding:5px 12px;">🔴 LIVE</span>':done&&m.result?'<span style="color:var(--gold);font-weight:900;font-size:13px;">✔ Τελείωσε</span>':''}
+      </div>
+      <div class="pred-match-teams-big">${m.home} <span style="color:#90EE90;font-size:.65em;">⚽</span> ${m.away}</div>
+      <div class="pick-btns">
+        <button class="${homeClass}${hExtra}" ${disabled} onclick="makePick('${m.id}','home')">
+          ${m.home}<br><span style="font-size:.75em;opacity:.8;">Κερδίζει</span>
+        </button>
+        <button class="${drawClass}${dExtra}" ${disabled} onclick="makePick('${m.id}','draw')">
+          🤝<br><span style="font-size:.75em;">Ισοπαλία</span>
+        </button>
+        <button class="${awayClass}${aExtra}" ${disabled} onclick="makePick('${m.id}','away')">
+          ${m.away}<br><span style="font-size:.75em;opacity:.8;">Κερδίζει</span>
+        </button>
+      </div>
+      ${feedbackHtml}
+    </div>`;
+  }
+  document.getElementById('predMatchList').innerHTML=html;
+  renderLeaderboard();
+}
+
+function makePick(matchId, pick){
+  const player=getPlayer();
+  if(!player){ alert('Πρώτα γράψε το όνομά σου!'); return; }
+  const preds=getPreds();
+  if(!preds[player]) preds[player]={};
+  preds[player][matchId]=pick;
+  savePreds(preds);
+  renderPredictions();
+}
+
+function calcScore(playerPreds){
+  let score=0, correct=0, total=0;
+  for(const m of MATCHES){
+    if(m.result && playerPreds[m.id]){
+      total++;
+      if(playerPreds[m.id]===m.result){ score+=3; correct++; }
+    }
+  }
+  return {score, correct, total};
+}
+
+function renderLeaderboard(){
+  const preds=getPreds();
+  const players=Object.keys(preds);
+  if(!players.length){
+    document.getElementById('leaderboard').innerHTML='<div class="lb-empty">Δεν υπάρχουν προβλέψεις ακόμα! 👆</div>';
+    return;
+  }
+
+  const rows=players.map(name=>{
+    const {score,correct,total}=calcScore(preds[name]);
+    const picks=Object.keys(preds[name]).length;
+    return {name,score,correct,total,picks};
+  }).sort((a,b)=>b.score-a.score||b.picks-a.picks);
+
+  const medals=['🥇','🥈','🥉'];
+  let html='';
+  rows.forEach((r,i)=>{
+    const medal=medals[i]||`${i+1}.`;
+    const currentPlayer=getPlayer();
+    const isCurrent=(r.name===currentPlayer);
+    html+=`<div class="lb-row" style="${isCurrent?'background:rgba(255,215,0,.12);border-radius:14px;':''}">
+      <span class="lb-rank">${medal}</span>
+      <div><span class="lb-name">${r.name}${isCurrent?' 👈':''}</span><div class="lb-detail">${r.picks} προβλέψεις · ${r.correct}/${r.total} σωστές</div></div>
+      <span class="lb-score">${r.score} pts</span>
+    </div>`;
+  });
+  document.getElementById('leaderboard').innerHTML=html;
+}
+
+/* ============================================================
+   QUIZ TAB
+============================================================ */
+let qIdx=0, qScore=0, qAnswered=false, qOrder=[];
+
+function initQuiz(){
+  // shuffle questions
+  qOrder=[...Array(QUIZ.length).keys()].sort(()=>Math.random()-.5);
+  qIdx=0; qScore=0; qAnswered=false;
+  document.getElementById('quizCard').style.display='';
+  document.getElementById('scoreScreen').style.display='none';
+  buildProgress();
+  renderQuestion();
+}
+
+function buildProgress(){
+  const d=document.getElementById('quizProgress');
+  d.innerHTML=qOrder.map((_,i)=>`<div class="qp-dot${i===qIdx?' current':''}" id="dot${i}"></div>`).join('');
+}
+
+function renderQuestion(){
+  const qi=qOrder[qIdx];
+  const q=QUIZ[qi];
+  document.getElementById('quizQNum').textContent=`Ερώτηση ${qIdx+1} από ${QUIZ.length}`;
+  document.getElementById('quizQuestion').textContent=q.q;
+  document.getElementById('quizFeedback').textContent='';
+  document.getElementById('quizFeedback').className='quiz-feedback';
+  document.getElementById('quizExplain').textContent='';
+  document.getElementById('btnNext').disabled=true;
+  qAnswered=false;
+
+  const letters=['Α','Β','Γ'];
+  document.getElementById('quizOpts').innerHTML=q.opts.map((o,i)=>`
+    <button class="quiz-opt" onclick="answerQuiz(${i})">
+      <span class="opt-letter">${letters[i]}</span> ${o}
+    </button>`).join('');
+
+  // progress dots
+  document.querySelectorAll('.qp-dot').forEach((dot,i)=>{ dot.className='qp-dot'+(i===qIdx?' current':''); });
+}
+
+function answerQuiz(chosen){
+  if(qAnswered) return;
+  qAnswered=true;
+  const qi=qOrder[qIdx];
+  const q=QUIZ[qi];
+  const correct=(chosen===q.ans);
+  if(correct) qScore++;
+
+  const btns=document.querySelectorAll('.quiz-opt');
+  btns.forEach(b=>b.disabled=true);
+
+  btns[chosen].classList.add(correct?'correct-ans':'wrong-ans');
+  if(!correct) btns[q.ans].classList.add('reveal-right');
+
+  const fb=document.getElementById('quizFeedback');
+  if(correct){
+    fb.textContent='✅ Μπράβο! Σωστά!';
+    fb.className='quiz-feedback correct-fb';
+  } else {
+    fb.textContent='❌ Λάθος! Η σωστή ήταν '+['Α','Β','Γ'][q.ans];
+    fb.className='quiz-feedback wrong-fb';
+  }
+  document.getElementById('quizExplain').textContent='💡 '+q.explain;
+
+  // dot
+  const dot=document.getElementById('dot'+qIdx);
+  if(dot) dot.className='qp-dot '+(correct?'correct':'wrong');
+
+  document.getElementById('btnNext').disabled=false;
+  document.getElementById('btnNext').textContent=
+    qIdx<QUIZ.length-1 ? 'Επόμενη ➡️' : 'Δες το σκορ 🏆';
+}
+
+function nextQuestion(){
+  qIdx++;
+  if(qIdx>=QUIZ.length){
+    showScore(); return;
+  }
+  buildProgress();
+  renderQuestion();
+}
+
+function showScore(){
+  document.getElementById('quizCard').style.display='none';
+  document.getElementById('scoreScreen').style.display='';
+
+  const pct=qScore/QUIZ.length;
+  let emoji='😅', msg='Μην το βάζεις κάτω, προπόνηση κάνει!';
+  if(pct>=0.9){ emoji='🏆🌟'; msg='Απίστευτο! Είσαι ειδήμων του Μουντιάλ!'; }
+  else if(pct>=0.7){ emoji='⭐⭐⭐'; msg='Πολύ καλά! Ξέρεις πολλά για ποδόσφαιρο!'; }
+  else if(pct>=0.5){ emoji='⚽👍'; msg='Καλά! Συνέχισε να μαθαίνεις!'; }
+  else if(pct>=0.3){ emoji='🤔'; msg='Λίγο ακόμα και θα τα πας τέλεια!'; }
+
+  document.getElementById('scoreEmoji').textContent=emoji;
+  document.getElementById('scoreNum').textContent=qScore+' / '+QUIZ.length;
+  document.getElementById('scoreSub').textContent=msg;
+}
+
+function restartQuiz(){ initQuiz(); }
+
+/* ============================================================
+   INIT
+============================================================ */
+buildSchedule();
+updateCountdown();
+setInterval(updateCountdown, 1000);
+setInterval(buildSchedule, 60000);
+setInterval(()=>{ if(document.getElementById('tab-predictions').classList.contains('active')) renderPredictions(); }, 30000);
+</script>
+</body>
+</html>
