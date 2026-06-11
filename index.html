@@ -1,836 +1,545 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>⚽ Μουντιάλ 2026</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Η Σούπερ Αποστολή του Σπύρου</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;900&family=Montserrat:wght@900&family=Roboto:wght@300;400;700&display=swap');
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --lego-red: #e3000b;
+            --lego-blue: #0055ad;
+            --lego-yellow: #ffcf00;
+            --neutral-bg: #fdfaf6;
+        }
 
-    :root {
-      --green-dark: #0d5c22;
-      --green-mid: #1a6b2a;
-      --green-light: #2d9e42;
-      --gold: #FFD700;
-      --gold-dark: #8B6914;
-      --white: #ffffff;
-      --card-bg: rgba(255,255,255,0.12);
-      --card-border: rgba(255,255,255,0.25);
-    }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--neutral-bg);
+            color: #333;
+            overflow-x: hidden;
+        }
 
-    body {
-      font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-      background: linear-gradient(160deg, #0d5c22 0%, #1a6b2a 30%, #2d9e42 60%, #1a8a3a 80%, #0d5c22 100%);
-      min-height: 100vh;
-      padding-bottom: 30px;
-    }
+        .rounded-title {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
 
-    /* ── TABS ── */
-    .tab-bar {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      padding: 16px 12px 0;
-      flex-wrap: wrap;
-    }
-    .tab-btn {
-      background: rgba(255,255,255,0.15);
-      border: 2px solid rgba(255,255,255,0.25);
-      color: rgba(255,255,255,0.85);
-      font-family: inherit;
-      font-size: clamp(13px, 3.5vw, 18px);
-      font-weight: 900;
-      padding: 10px 18px;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all .2s;
-      letter-spacing: .5px;
-    }
-    .tab-btn:hover { background: rgba(255,255,255,0.25); }
-    .tab-btn.active {
-      background: var(--gold);
-      border-color: var(--gold);
-      color: #1a1a00;
-      box-shadow: 0 4px 18px rgba(255,215,0,.45);
-    }
+        h3 {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+        }
 
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
+        .brick-shadow {
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+        }
 
-    /* ── CONTAINER ── */
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 0 14px;
-    }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            margin: auto;
+        }
 
-    /* ── HEADER ── */
-    .header {
-      text-align: center;
-      padding: 20px 0 14px;
-    }
-    .ball-bounce {
-      font-size: clamp(50px, 12vw, 80px);
-      display: inline-block;
-      animation: bounce 1.2s ease-in-out infinite;
-      filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));
-    }
-    @keyframes bounce {
-      0%,100% { transform: translateY(0) rotate(0deg); }
-      50%      { transform: translateY(-18px) rotate(14deg); }
-    }
-    .title {
-      font-size: clamp(28px, 8vw, 60px);
-      font-weight: 900;
-      color: #fff;
-      text-shadow: 4px 4px 0 var(--green-dark), 0 0 40px rgba(255,220,0,.5);
-      line-height: 1.1;
-    }
-    .title span { color: var(--gold); text-shadow: 4px 4px 0 var(--gold-dark), 0 0 40px rgba(255,220,0,.8); }
-    .subtitle { font-size: clamp(12px, 3vw, 18px); color: #b8ffc0; margin-top: 6px; font-weight: 700; }
+        .hero-gradient {
+            background: linear-gradient(135deg, #fdfaf6 0%, #f5f0e6 100%);
+        }
 
-    /* ── CARD ── */
-    .card {
-      background: var(--card-bg);
-      backdrop-filter: blur(10px);
-      border-radius: 24px;
-      border: 2px solid var(--card-border);
-      padding: 20px;
-      margin: 14px 0;
-      box-shadow: 0 8px 32px rgba(0,0,0,.25);
-    }
+        .nav-btn {
+            transition: all 0.3s ease;
+        }
 
-    /* ── COUNTDOWN ── */
-    .next-label { font-size: clamp(12px,3vw,17px); color: #90EE90; font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-bottom:10px; }
-    .next-teams { font-size: clamp(20px,6vw,40px); font-weight:900; color:#fff; text-shadow:2px 2px 8px rgba(0,0,0,.5); margin:8px 0; }
-    .next-info  { font-size: clamp(12px,3vw,17px); color: var(--gold); font-weight:700; margin-bottom:16px; }
-    .cd-boxes   { display:flex; justify-content:center; gap:clamp(6px,3vw,18px); flex-wrap:wrap; }
-    .cd-box {
-      background: linear-gradient(135deg, #FFD700, #FF8C00);
-      border-radius: 18px;
-      padding: clamp(10px,2.5vw,18px) clamp(14px,4vw,28px);
-      min-width: clamp(65px,16vw,105px);
-      box-shadow: 0 5px 18px rgba(0,0,0,.3), inset 0 2px 4px rgba(255,255,255,.3);
-      text-align: center;
-    }
-    .cd-num   { font-size: clamp(32px,10vw,68px); font-weight:900; color:#1a1a00; line-height:1; display:block; }
-    .cd-label { font-size: clamp(10px,2vw,14px); font-weight:900; color:#3a1a00; text-transform:uppercase; letter-spacing:1px; }
-    .live-badge {
-      display:inline-block; background:#FF3333; color:#fff;
-      font-size:clamp(14px,3.5vw,20px); font-weight:900; padding:10px 26px;
-      border-radius:50px; animation:pulse 1s ease-in-out infinite;
-      text-transform:uppercase; letter-spacing:2px;
-    }
-    @keyframes pulse {
-      0%,100% { transform:scale(1); box-shadow:0 0 0 0 rgba(255,51,51,.5); }
-      50%      { transform:scale(1.06); box-shadow:0 0 0 12px rgba(255,51,51,0); }
-    }
+        .nav-btn.active {
+            background-color: var(--lego-red);
+            color: white;
+            transform: scale(1.05);
+        }
 
-    /* ── SCHEDULE ── */
-    .section-title {
-      text-align:center; font-size:clamp(18px,5vw,32px); font-weight:900;
-      color: var(--gold); text-shadow:3px 3px 0 rgba(0,0,0,.35);
-      margin: 18px 0 12px; letter-spacing:1px;
-    }
-    .day-group { background:var(--card-bg); backdrop-filter:blur(8px); border-radius:22px; border:2px solid var(--card-border); margin-bottom:12px; overflow:hidden; box-shadow:0 6px 24px rgba(0,0,0,.22); }
-    .day-header { background:linear-gradient(135deg,rgba(255,215,0,.28),rgba(255,140,0,.28)); padding:10px 18px; font-size:clamp(14px,4vw,20px); font-weight:900; color:var(--gold); border-bottom:1.5px solid rgba(255,215,0,.2); }
-    .match-row { padding:12px 18px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .match-row:last-child { border-bottom:none; }
-    .match-row.is-live { background:rgba(255,50,50,.15); border-left:4px solid #FF3333; }
-    .match-time  { font-size:clamp(15px,4vw,22px); font-weight:900; color:var(--gold); min-width:60px; }
-    .match-teams { flex:1; font-size:clamp(14px,3.8vw,20px); font-weight:900; color:#fff; min-width:180px; }
-    .match-teams .vs { color:#90EE90; font-size:.75em; padding:0 5px; }
-    .match-city { font-size:clamp(9px,2vw,12px); color:rgba(255,255,255,.55); font-weight:700; margin-top:2px; }
-    .result-badge { font-size:clamp(14px,4vw,22px); font-weight:900; background:rgba(255,255,255,.14); border:2px solid rgba(255,255,255,.3); border-radius:10px; padding:4px 12px; color:#fff; min-width:70px; text-align:center; }
-    .result-badge.done { background:rgba(255,215,0,.2); border-color:var(--gold); color:var(--gold); }
-    .ch { font-size:clamp(9px,2.2vw,13px); font-weight:900; padding:4px 8px; border-radius:7px; white-space:nowrap; }
-    .ch-ert1 { background:#003399; color:#fff; border:1.5px solid #6699FF; }
-    .ch-ert2 { background:#005500; color:#fff; border:1.5px solid #66FF66; }
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
 
-    /* fun facts */
-    .fun-card { text-align:center; }
-    .fun-card p { font-size:clamp(14px,3.5vw,19px); color:#c8ffc0; font-weight:700; line-height:1.6; }
-    .fun-card strong { color:var(--gold); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    /* ════════════════════════════════════
-       PREDICTIONS TAB
-    ════════════════════════════════════ */
-    .pred-header { text-align:center; margin-bottom:8px; }
-    .pred-header p { color:#c8ffc0; font-size:clamp(13px,3vw,17px); font-weight:700; margin-top:6px; }
+        /* Hero Animations */
+        @keyframes float-spidey {
+            0%, 100% { transform: translateY(0px) rotate(-12deg) scale(1); }
+            50% { transform: translateY(-12px) rotate(-8deg) scale(1.05); }
+        }
+        @keyframes float-batman {
+            0%, 100% { transform: translateY(0px) rotate(12deg) scale(1); }
+            50% { transform: translateY(-12px) rotate(16deg) scale(1.05); }
+        }
+        .float-spidey { animation: float-spidey 4s ease-in-out infinite; }
+        .float-batman { animation: float-batman 4s ease-in-out infinite; animation-delay: 1.5s; }
 
-    /* Name form */
-    .name-form { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:14px 0; }
-    .name-input {
-      flex:1; min-width:180px; max-width:280px;
-      padding:12px 18px; border-radius:50px; border:3px solid var(--gold);
-      font-family:inherit; font-size:clamp(15px,4vw,20px); font-weight:900;
-      background:rgba(255,255,255,.9); color:#1a1a00; outline:none;
-    }
-    .btn-primary {
-      background:linear-gradient(135deg, var(--gold), #FF8C00);
-      border:none; border-radius:50px; padding:12px 26px;
-      font-family:inherit; font-size:clamp(15px,4vw,20px); font-weight:900;
-      color:#1a1a00; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.3);
-      transition:transform .15s;
-    }
-    .btn-primary:hover { transform:scale(1.05); }
-    .btn-secondary {
-      background:rgba(255,255,255,.2); border:2px solid rgba(255,255,255,.4);
-      border-radius:50px; padding:8px 18px;
-      font-family:inherit; font-size:clamp(12px,3vw,15px); font-weight:900;
-      color:#fff; cursor:pointer; transition:background .2s;
-    }
-    .btn-secondary:hover { background:rgba(255,255,255,.3); }
+        /* Swing Animation */
+        @keyframes swing-action {
+            0%, 100% { transform: rotate(-18deg); }
+            50% { transform: rotate(18deg); }
+        }
+        .swinging-hero { animation: swing-action 2.5s ease-in-out infinite; transform-origin: 200px 55px; }
 
-    .greeting { text-align:center; font-size:clamp(16px,4.5vw,26px); font-weight:900; color:var(--gold); margin:8px 0; }
+        /* Hero Background Effects */
+        @keyframes sweep-light {
+            0%, 100% { transform: rotate(-8deg) scaleY(0.95); opacity: 0.25; }
+            50% { transform: rotate(12deg) scaleY(1.05); opacity: 0.45; }
+        }
+        .bat-spotlight { animation: sweep-light 7s ease-in-out infinite; transform-origin: bottom right; }
+        @keyframes pulse-web { 0%, 100% { transform: scale(1); opacity: 0.2; } 50% { transform: scale(1.08); opacity: 0.35; } }
+        .pulse-web { animation: pulse-web 5s ease-in-out infinite; }
+        @keyframes shoot-web-line { 0% { stroke-dashoffset: 150; opacity: 0; } 20% { opacity: 0.8; } 40% { stroke-dashoffset: 0; opacity: 0.8; } 60%, 100% { stroke-dashoffset: -150; opacity: 0; } }
+        .shooting-web { stroke-dasharray: 150; animation: shoot-web-line 6s cubic-bezier(0.25, 1, 0.5, 1) infinite; }
 
-    /* Prediction cards */
-    .pred-match-card {
-      background:var(--card-bg); backdrop-filter:blur(8px);
-      border-radius:22px; border:2px solid var(--card-border);
-      padding:18px 16px; margin-bottom:12px;
-      box-shadow:0 6px 24px rgba(0,0,0,.22);
-      transition:border-color .2s;
-    }
-    .pred-match-card.predicted { border-color:rgba(0,255,100,.5); }
-    .pred-match-card.correct   { border-color:#FFD700; background:rgba(255,215,0,.12); }
-    .pred-match-card.wrong     { border-color:rgba(255,80,80,.5); background:rgba(255,80,80,.08); }
+        /* STATS SPECIFIC ANIMATIONS */
+        @keyframes falling-bricks {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.2; }
+            90% { opacity: 0.2; }
+            100% { transform: translateY(800px) rotate(360deg); opacity: 0; }
+        }
+        .lego-rain {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+            overflow: hidden;
+        }
+        .brick {
+            position: absolute;
+            width: 30px; height: 20px;
+            background: rgba(227, 0, 11, 0.1);
+            border-radius: 4px;
+            animation: falling-bricks 8s linear infinite;
+        }
+        .brick::after {
+            content: ''; position: absolute; top: -5px; left: 5px;
+            width: 8px; height: 5px; background: inherit; border-radius: 2px 2px 0 0;
+            box-shadow: 12px 0 0 inherit;
+        }
 
-    .pred-match-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
-    .pred-match-date { font-size:clamp(11px,2.5vw,14px); color:#90EE90; font-weight:700; }
-    .pred-match-teams-big { font-size:clamp(18px,5vw,28px); font-weight:900; color:#fff; text-align:center; margin-bottom:12px; }
+        .stat-card {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
 
-    /* Pick buttons */
-    .pick-btns { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
-    .pick-btn {
-      flex:1; min-width:90px; max-width:200px;
-      padding:12px 8px; border-radius:18px;
-      font-family:inherit; font-size:clamp(13px,3.5vw,17px); font-weight:900;
-      border:3px solid rgba(255,255,255,.3);
-      background:rgba(255,255,255,.12); color:#fff;
-      cursor:pointer; transition:all .18s; text-align:center; line-height:1.3;
-    }
-    .pick-btn:hover { background:rgba(255,255,255,.25); transform:translateY(-2px); }
-    .pick-btn.selected { border-color:var(--gold); background:rgba(255,215,0,.25); color:var(--gold); transform:scale(1.04); }
-    .pick-btn.correct-pick { border-color:#00ff66; background:rgba(0,255,102,.2); color:#00ff66; }
-    .pick-btn.wrong-pick   { border-color:rgba(255,80,80,.8); background:rgba(255,80,80,.15); color:rgba(255,150,150,1); }
-
-    .pred-result-label { text-align:center; font-size:clamp(12px,3vw,16px); font-weight:900; margin-top:10px; }
-    .pred-result-label.correct { color:#00ff66; }
-    .pred-result-label.wrong   { color:rgba(255,130,130,1); }
-
-    /* LEADERBOARD */
-    .leaderboard { }
-    .lb-row {
-      display:flex; align-items:center; gap:12px;
-      padding:12px 16px; border-bottom:1px solid rgba(255,255,255,.1);
-    }
-    .lb-row:last-child { border-bottom:none; }
-    .lb-rank { font-size:clamp(20px,5vw,30px); font-weight:900; min-width:36px; text-align:center; }
-    .lb-name { flex:1; font-size:clamp(15px,4vw,22px); font-weight:900; color:#fff; }
-    .lb-score { font-size:clamp(18px,5vw,28px); font-weight:900; color:var(--gold); }
-    .lb-detail { font-size:clamp(10px,2.5vw,13px); color:rgba(255,255,255,.6); font-weight:700; }
-    .lb-empty { text-align:center; color:rgba(255,255,255,.5); font-size:clamp(14px,3.5vw,18px); font-weight:700; padding:20px; }
-
-    /* ════════════════════════════════════
-       QUIZ TAB
-    ════════════════════════════════════ */
-    .quiz-header { text-align:center; }
-    .quiz-header p { color:#c8ffc0; font-size:clamp(13px,3vw,17px); font-weight:700; margin-top:6px; }
-
-    .quiz-progress { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin:14px 0; }
-    .qp-dot { width:clamp(10px,3vw,16px); height:clamp(10px,3vw,16px); border-radius:50%; background:rgba(255,255,255,.25); transition:background .3s; }
-    .qp-dot.done    { background:#00cc55; }
-    .qp-dot.correct { background:#FFD700; }
-    .qp-dot.wrong   { background:#FF4444; }
-    .qp-dot.current { background:#fff; animation:pulse 1s infinite; }
-
-    .quiz-q-num { text-align:center; font-size:clamp(12px,3vw,16px); color:#90EE90; font-weight:700; margin-bottom:8px; }
-    .quiz-question {
-      font-size:clamp(17px,4.5vw,26px); font-weight:900; color:#fff;
-      text-align:center; line-height:1.4; margin-bottom:20px;
-      text-shadow:2px 2px 6px rgba(0,0,0,.4);
-    }
-    .quiz-opts { display:flex; flex-direction:column; gap:10px; }
-    .quiz-opt {
-      display:flex; align-items:center; gap:14px;
-      padding:14px 18px; border-radius:18px;
-      border:2.5px solid rgba(255,255,255,.3);
-      background:rgba(255,255,255,.1);
-      font-family:inherit; font-size:clamp(14px,3.8vw,20px); font-weight:900;
-      color:#fff; cursor:pointer; transition:all .18s; text-align:left;
-    }
-    .quiz-opt:hover:not(:disabled) { background:rgba(255,255,255,.22); transform:translateX(4px); }
-    .quiz-opt .opt-letter {
-      width:clamp(32px,7vw,42px); height:clamp(32px,7vw,42px);
-      border-radius:50%; background:var(--gold); color:#1a1a00;
-      display:flex; align-items:center; justify-content:center;
-      font-size:clamp(14px,3.5vw,20px); font-weight:900; flex-shrink:0;
-    }
-    .quiz-opt.correct-ans  { border-color:#00ff66; background:rgba(0,255,102,.18); }
-    .quiz-opt.correct-ans .opt-letter { background:#00ff66; }
-    .quiz-opt.wrong-ans    { border-color:#FF4444; background:rgba(255,68,68,.15); }
-    .quiz-opt.wrong-ans .opt-letter { background:#FF4444; color:#fff; }
-    .quiz-opt.reveal-right { border-color:#00ff66; background:rgba(0,255,102,.12); }
-    .quiz-opt.reveal-right .opt-letter { background:#00ff66; }
-    .quiz-opt:disabled { cursor:default; }
-
-    .quiz-feedback {
-      text-align:center; font-size:clamp(20px,6vw,36px); font-weight:900;
-      margin:16px 0 10px; min-height:50px; transition:all .2s;
-    }
-    .quiz-feedback.correct-fb { color:#00ff66; }
-    .quiz-feedback.wrong-fb   { color:#FF6666; }
-    .quiz-explain { text-align:center; font-size:clamp(12px,3vw,16px); color:#c8ffc0; font-weight:700; min-height:24px; }
-
-    .btn-next {
-      display:block; margin:18px auto 0;
-      background:linear-gradient(135deg, var(--gold), #FF8C00);
-      border:none; border-radius:50px; padding:14px 36px;
-      font-family:inherit; font-size:clamp(15px,4vw,21px); font-weight:900;
-      color:#1a1a00; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.3);
-      transition:transform .15s;
-    }
-    .btn-next:hover { transform:scale(1.06); }
-    .btn-next:disabled { opacity:.4; cursor:default; transform:none; }
-
-    /* SCORE SCREEN */
-    .score-screen { text-align:center; padding:20px; }
-    .score-emoji { font-size:80px; margin-bottom:10px; }
-    .score-title { font-size:clamp(26px,7vw,50px); font-weight:900; color:var(--gold); text-shadow:3px 3px 0 var(--gold-dark); }
-    .score-sub   { font-size:clamp(15px,4vw,24px); color:#c8ffc0; font-weight:700; margin:10px 0; }
-    .score-num   { font-size:clamp(48px,14vw,90px); font-weight:900; color:#fff; text-shadow:4px 4px 0 var(--green-dark); }
-
-    /* footer */
-    .footer { text-align:center; color:rgba(255,255,255,.4); font-size:12px; padding:20px; font-weight:700; }
-
-    @media(max-width:480px){
-      .match-city { display:none; }
-      .pick-btn { min-width:70px; padding:10px 6px; }
-    }
-  </style>
+        .reactor-glow {
+            animation: reactor-pulse 2s ease-in-out infinite;
+        }
+        @keyframes reactor-pulse {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 207, 0, 0.4)); }
+            50% { filter: drop-shadow(0 0 15px rgba(255, 207, 0, 0.8)); }
+        }
+    </style>
 </head>
-<body>
-
-<!-- TAB BAR -->
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="showTab('home')">🏠 Αρχική</button>
-  <button class="tab-btn" onclick="showTab('predictions')">🎯 Προβλέψεις</button>
-  <button class="tab-btn" onclick="showTab('quiz')">❓ Quiz</button>
-</div>
-
-<!-- ════════════ HOME TAB ════════════ -->
-<div id="tab-home" class="tab-panel active">
-<div class="container">
-
-  <div class="header">
-    <div class="ball-bounce">⚽</div>
-    <div class="title">Μουντιάλ <span>2026</span></div>
-    <div class="subtitle">🏆 Παγκόσμιο Κύπελλο · ΗΠΑ · Μεξικό · Καναδάς 🏆</div>
-  </div>
-
-  <!-- Countdown -->
-  <div class="card" style="text-align:center;">
-    <div class="next-label">🎯 Επόμενος Αγώνας</div>
-    <div class="next-teams" id="nextTeams">⏳</div>
-    <div class="next-info"  id="nextInfo"></div>
-    <div class="cd-boxes" id="cdBoxes">
-      <div class="cd-box"><span class="cd-num" id="cdD">--</span><span class="cd-label">Μέρες</span></div>
-      <div class="cd-box"><span class="cd-num" id="cdH">--</span><span class="cd-label">Ώρες</span></div>
-      <div class="cd-box"><span class="cd-num" id="cdM">--</span><span class="cd-label">Λεπτά</span></div>
-      <div class="cd-box"><span class="cd-num" id="cdS">--</span><span class="cd-label">Δευτ/τα</span></div>
-    </div>
-  </div>
-
-  <!-- Fun facts -->
-  <div class="card fun-card">
-    <p>⚽ Φέτος παίζουν <strong>48 χώρες</strong> από όλον τον κόσμο!<br>
-    🌍 Αγώνες στις <strong>ΗΠΑ, Μεξικό και Καναδά</strong>.<br>
-    🏆 Πρωταθλήτρια Κόσμου είναι η <strong>Αργεντινή 🇦🇷</strong>!</p>
-  </div>
-
-  <!-- Schedule -->
-  <div class="section-title">📺 Πρόγραμμα στην ΕΡΤ</div>
-  <div id="schedContainer"></div>
-
-  <div class="footer">Δεδομένα από ertsports.gr · Ώρα Ελλάδος (EEST)</div>
-</div>
-</div><!-- /home -->
-
-
-<!-- ════════════ PREDICTIONS TAB ════════════ -->
-<div id="tab-predictions" class="tab-panel">
-<div class="container">
-  <div class="header pred-header">
-    <div style="font-size:clamp(36px,10vw,65px);">🎯</div>
-    <div class="title">Προβλέψεις</div>
-    <p>Ποια ομάδα θα κερδίσει; Διάλεξε και κέρδισε πόντους!</p>
-  </div>
-
-  <!-- Name section -->
-  <div class="card" id="nameSection">
-    <div style="text-align:center;font-size:clamp(16px,4vw,22px);color:#fff;font-weight:900;margin-bottom:12px;">✏️ Πες μας το όνομά σου!</div>
-    <div class="name-form">
-      <input class="name-input" id="nameInput" type="text" placeholder="Το όνομά μου..." maxlength="20">
-      <button class="btn-primary" onclick="setPlayer()">Ξεκινάω! 🚀</button>
-    </div>
-  </div>
-
-  <div id="playerGreeting" style="display:none;" class="card" style="text-align:center;">
-    <div class="greeting" id="greetingText"></div>
-    <div style="text-align:center;margin-top:8px;">
-      <button class="btn-secondary" onclick="changePlayer()">↩ Αλλαγή ονόματος</button>
-    </div>
-  </div>
-
-  <!-- Predictions -->
-  <div class="section-title">⚽ Επέλεξε νικητή για κάθε αγώνα</div>
-  <div id="predMatchList"></div>
-
-  <!-- Leaderboard -->
-  <div class="section-title">🏆 Βαθμολογία</div>
-  <div class="card">
-    <div id="leaderboard"></div>
-  </div>
-
-  <div class="footer">3 πόντοι για κάθε σωστή πρόβλεψη!</div>
-</div>
-</div><!-- /predictions -->
-
-
-<!-- ════════════ QUIZ TAB ════════════ -->
-<div id="tab-quiz" class="tab-panel">
-<div class="container">
-  <div class="header quiz-header">
-    <div style="font-size:clamp(36px,10vw,65px);">🧠</div>
-    <div class="title">Quiz Μουντιάλ</div>
-    <p>15 ερωτήσεις για τους ειδήμονες του ποδοσφαίρου!</p>
-  </div>
-
-  <div class="card" id="quizCard">
-    <!-- progress dots -->
-    <div class="quiz-progress" id="quizProgress"></div>
-    <div class="quiz-q-num" id="quizQNum"></div>
-    <div class="quiz-question" id="quizQuestion"></div>
-    <div class="quiz-opts" id="quizOpts"></div>
-    <div class="quiz-feedback" id="quizFeedback"></div>
-    <div class="quiz-explain"  id="quizExplain"></div>
-    <button class="btn-next" id="btnNext" onclick="nextQuestion()" disabled>Επόμενη ➡️</button>
-  </div>
-
-  <!-- Score screen (hidden until quiz done) -->
-  <div class="card score-screen" id="scoreScreen" style="display:none;">
-    <div class="score-emoji" id="scoreEmoji"></div>
-    <div class="score-title">Το σκορ σου:</div>
-    <div class="score-num" id="scoreNum"></div>
-    <div class="score-sub"  id="scoreSub"></div>
-    <button class="btn-primary" onclick="restartQuiz()" style="margin-top:18px;">🔄 Ξανά!</button>
-  </div>
-
-  <div class="footer">Καλή επιτυχία! ⚽</div>
-</div>
-</div><!-- /quiz -->
-
-
-<script>
-/* ============================================================
-   DATA
-============================================================ */
-const MATCHES = [
-  { id:'m1',  date:'2026-06-11', time:'22:00', home:'🇲🇽 Μεξικό',       away:'🇿🇦 Ν. Αφρική',  city:'Μέξικο Σίτι',    ch:['ΕΡΤ1','ΕΡΤ2 ΣΠΟΡ'], result:null },
-  { id:'m2',  date:'2026-06-12', time:'05:00', home:'🇰🇷 Ν. Κορέα',      away:'🇨🇿 Τσεχία',      city:'Γουαδαλαχάρα',   ch:['ΕΡΤ1'],              result:null },
-  { id:'m3',  date:'2026-06-12', time:'22:00', home:'🇨🇦 Καναδάς',        away:'🇧🇦 Βοσνία',      city:'Τορόντο',        ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
-  { id:'m4',  date:'2026-06-13', time:'04:00', home:'🇺🇸 ΗΠΑ',            away:'🇵🇾 Παραγουάη',   city:'Λος Άντζελες',   ch:['ΕΡΤ1'],              result:null },
-  { id:'m5',  date:'2026-06-13', time:'22:00', home:'🇶🇦 Κατάρ',          away:'🇨🇭 Ελβετία',     city:'Σαν Φρανσίσκο',  ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
-  { id:'m6',  date:'2026-06-14', time:'01:00', home:'🇧🇷 Βραζιλία',       away:'🇲🇦 Μαρόκο',      city:'Νέα Υόρκη',      ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
-  { id:'m7',  date:'2026-06-14', time:'04:00', home:'🇭🇹 Αϊτή',           away:'🏴󠁧󠁢󠁳󠁣󠁴󠁿 Σκωτία',    city:'Βοστώνη',        ch:['ΕΡΤ1'],              result:null },
-  { id:'m8',  date:'2026-06-14', time:'07:00', home:'🇦🇺 Αυστραλία',      away:'🇹🇷 Τουρκία',     city:'Βανκούβερ',      ch:['ΕΡΤ1'],              result:null },
-  { id:'m9',  date:'2026-06-14', time:'20:00', home:'🇩🇪 Γερμανία',       away:'🇨🇼 Κουρασάο',    city:'Χιούστον',       ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
-  { id:'m10', date:'2026-06-14', time:'23:00', home:'🇳🇱 Ολλανδία',       away:'🇯🇵 Ιαπωνία',     city:'Ντάλας',         ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
-  { id:'m11', date:'2026-06-15', time:'02:00', home:'🇨🇮 Ακτή Ελεφ.',    away:'🇪🇨 Εκουαδόρ',    city:'Φιλαδέλφεια',    ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
-  { id:'m12', date:'2026-06-15', time:'05:00', home:'🇸🇪 Σουηδία',        away:'🇹🇳 Τυνησία',     city:'Μοντερέι',       ch:['ΕΡΤ1'],              result:null },
-];
-
-const DAY_NAMES = {
-  '2026-06-11':'Πέμπτη 11 Ιουνίου 🎉 ΠΡΕΜΙΕΡΑ!',
-  '2026-06-12':'Παρασκευή 12 Ιουνίου',
-  '2026-06-13':'Σάββατο 13 Ιουνίου',
-  '2026-06-14':'Κυριακή 14 Ιουνίου',
-  '2026-06-15':'Δευτέρα 15 Ιουνίου',
-};
-
-/* result: 'home' | 'draw' | 'away' | null */
-
-/* ── QUIZ DATA ── */
-const QUIZ = [
-  { q:'Σε ποιες χώρες γίνεται το Μουντιάλ 2026;', opts:['Βραζιλία & Αργεντινή','ΗΠΑ, Μεξικό & Καναδάς','Γερμανία & Γαλλία'], ans:1, explain:'Φέτος για πρώτη φορά το Μουντιάλ γίνεται σε 3 χώρες ταυτόχρονα!' },
-  { q:'Πόσες χώρες παίζουν στο Μουντιάλ 2026;', opts:['32 χώρες','24 χώρες','48 χώρες'], ans:2, explain:'Είναι το πρώτο Μουντιάλ με 48 ομάδες!' },
-  { q:'Ποια χώρα είναι πρωταθλήτρια κόσμου αυτή τη στιγμή;', opts:['Βραζιλία 🇧🇷','Γαλλία 🇫🇷','Αργεντινή 🇦🇷'], ans:2, explain:'Η Αργεντινή κέρδισε το Μουντιάλ 2022 στο Κατάρ!' },
-  { q:'Πόσους παίκτες έχει κάθε ομάδα μέσα στο γήπεδο;', opts:['10 παίκτες','11 παίκτες','12 παίκτες'], ans:1, explain:'11 παίκτες κάθε ομάδα, συν 1 τερματοφύλακα!' },
-  { q:'Τι χρώμα κάρτα αποβάλλει έναν παίκτη αμέσως;', opts:['Κίτρινη 🟨','Κόκκινη 🟥','Μπλε 🟦'], ans:1, explain:'Η κόκκινη κάρτα σε βγάζει εκτός αγώνα!' },
-  { q:'Πόση ώρα διαρκεί ένας κανονικός ποδοσφαιρικός αγώνας;', opts:['60 λεπτά','90 λεπτά','120 λεπτά'], ans:1, explain:'90 λεπτά — δύο ημίχρονα των 45 λεπτών!' },
-  { q:'Ποια χώρα έχει κερδίσει τα περισσότερα Μουντιάλ;', opts:['Βραζιλία 🇧🇷','Γερμανία 🇩🇪','Ιταλία 🇮🇹'], ans:0, explain:'Η Βραζιλία έχει 5 κύπελλα — ρεκόρ!' },
-  { q:'Πού έγινε το Μουντιάλ 2022;', opts:['Ρωσία 🇷🇺','Κατάρ 🇶🇦','Βραζιλία 🇧🇷'], ans:1, explain:'Το Κατάρ ήταν η πρώτη αραβική χώρα που έκανε Μουντιάλ!' },
-  { q:'Ποιος είναι ο διάσημος Αργεντινός παίκτης που κέρδισε το Μουντιάλ 2022;', opts:['Κριστιάνο Ρονάλντο','Νέιμαρ','Λιονέλ Μέσι'], ans:2, explain:'Ο Μέσι θεωρείται από πολλούς ο καλύτερος παίκτης όλων των εποχών!' },
-  { q:'Ποιος παίκτης έχει σκοράρει τα περισσότερα γκολ σε Μουντιάλ (16 γκολ);', opts:['Ρονάλντο','Μίροσλαβ Κλόζε','Πελέ'], ans:1, explain:'Ο Γερμανός Κλόζε είναι ο κορυφαίος σκόρερ στην ιστορία του Μουντιάλ!' },
-  { q:'Πότε έγινε το πρώτο Μουντιάλ στην ιστορία;', opts:['1930','1950','1966'], ans:0, explain:'Το πρώτο Μουντιάλ έγινε το 1930 στην Ουρουγουάη — και η Ουρουγουάη το κέρδισε!' },
-  { q:'Πώς λέγεται ο παίκτης που υπερασπίζεται το τέρμα;', opts:['Επιθετικός','Μέσος','Τερματοφύλακας / Γκολκίπερ'], ans:2, explain:'Ο γκολκίπερ φοράει διαφορετική φανέλα από τους υπόλοιπους!' },
-  { q:'Πόσα γκολ σκόραρε η Βραζιλία στο Μουντιάλ 1970, το πιο όμορφο Μουντιάλ;', opts:['10 γκολ','19 γκολ','19+ γκολ'], ans:1, explain:'Η Βραζιλία του Πελέ σκόραρε 19 γκολ και κέρδισε το τρόπαιο αήττητη!' },
-  { q:'Σε ποια χώρα γίνεται ο Τελικός του Μουντιάλ 2026;', opts:['ΗΠΑ (Νέα Υόρκη)','Μεξικό (Μέξικο Σίτι)','Καναδάς (Τορόντο)'], ans:0, explain:'Ο Τελικός γίνεται στο MetLife Stadium κοντά στη Νέα Υόρκη στις 19 Ιουλίου!' },
-  { q:'Τι χρώμα έχει η φανέλα της Βραζιλίας;', opts:['Μπλε & Κόκκινη','Κίτρινη & Πράσινη','Λευκή & Μαύρη'], ans:1, explain:'Κίτρινο & πράσινο — τα χρώματα της Βραζιλίας! 🇧🇷' },
-];
-
-/* ============================================================
-   HELPERS
-============================================================ */
-function pad(n){ return String(n).padStart(2,'0'); }
-
-function matchDT(m){
-  const [y,mo,d] = m.date.split('-').map(Number);
-  const [h,mi]   = m.time.split(':').map(Number);
-  return new Date(Date.UTC(y,mo-1,d,h-3,mi)); // EEST = UTC+3
-}
-
-function isLive(m){
-  const n=new Date(), dt=matchDT(m);
-  return n>=dt && n<=new Date(dt.getTime()+110*60*1000);
-}
-function isDone(m){
-  return new Date() > new Date(matchDT(m).getTime()+110*60*1000);
-}
-
-/* ── TAB SWITCHING ── */
-function showTab(id){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  event.target.classList.add('active');
-  if(id==='predictions') renderPredictions();
-  if(id==='quiz') initQuiz();
-}
-
-/* ============================================================
-   HOME TAB
-============================================================ */
-function updateCountdown(){
-  const now=new Date();
-  let next=null;
-  for(const m of MATCHES){
-    const dt=matchDT(m);
-    if(isLive(m)){
-      document.getElementById('nextTeams').textContent=m.home+' ⚽ '+m.away;
-      document.getElementById('nextInfo').textContent='📍 '+m.city+' · '+m.ch.join(' & ');
-      document.getElementById('cdBoxes').innerHTML='<span class="live-badge">🔴 Παίζει ΤΩΡΑ!</span>';
-      return;
-    }
-    if(dt>now && !next){ next={m,dt}; }
-  }
-  if(!next){
-    document.getElementById('nextTeams').textContent='🏆 Μουντιάλ 2026 — ολοκληρώθηκε!';
-    document.getElementById('nextInfo').textContent='';
-    document.getElementById('cdBoxes').innerHTML='';
-    return;
-  }
-  const {m,dt}=next;
-  const diff=dt-now;
-  const days=Math.floor(diff/86400000);
-  const hrs =Math.floor((diff%86400000)/3600000);
-  const mins=Math.floor((diff%3600000)/60000);
-  const secs=Math.floor((diff%60000)/1000);
-  document.getElementById('nextTeams').textContent=m.home+' ⚽ '+m.away;
-  document.getElementById('nextInfo').textContent='📅 '+m.date.split('-').reverse().slice(0,2).join('/')+' στις '+m.time+' · '+m.ch.join(' & ');
-  document.getElementById('cdD').textContent=pad(days);
-  document.getElementById('cdH').textContent=pad(hrs);
-  document.getElementById('cdM').textContent=pad(mins);
-  document.getElementById('cdS').textContent=pad(secs);
-}
-
-function buildSchedule(){
-  const days={};
-  for(const m of MATCHES){
-    if(!days[m.date]) days[m.date]=[];
-    days[m.date].push(m);
-  }
-  let html='';
-  for(const [date,ms] of Object.entries(days)){
-    html+=`<div class="day-group"><div class="day-header">📅 ${DAY_NAMES[date]||date}</div>`;
-    for(const m of ms){
-      const live=isLive(m), done=isDone(m);
-      const chs=m.ch.map(c=>`<span class="ch ${c.includes('1')&&!c.includes('2')?'ch-ert1':'ch-ert2'}">${c}</span>`).join(' ');
-      let badge='';
-      if(live) badge='<span class="live-badge" style="font-size:13px;padding:6px 14px;">🔴 LIVE</span>';
-      else if(done&&m.result) badge=`<span class="result-badge done">${m.result}</span>`;
-      else if(done) badge='<span class="result-badge done">✔</span>';
-      else badge='<span class="result-badge">vs</span>';
-      html+=`<div class="match-row${live?' is-live':''}">
-        <span class="match-time">${m.time}</span>
-        <div class="match-teams">${m.home}<span class="vs">⚽</span>${m.away}<div class="match-city">📍 ${m.city}</div></div>
-        ${badge} ${chs}</div>`;
-    }
-    html+='</div>';
-  }
-  document.getElementById('schedContainer').innerHTML=html;
-}
-
-/* ============================================================
-   PREDICTIONS TAB
-============================================================ */
-const LS_PLAYER = 'mundial26_player';
-const LS_PREDS  = 'mundial26_preds'; // { playerName: { matchId: 'home'|'draw'|'away' } }
-
-function getPreds(){ try{ return JSON.parse(localStorage.getItem(LS_PREDS)||'{}'); }catch(e){ return {}; } }
-function savePreds(obj){ localStorage.setItem(LS_PREDS,JSON.stringify(obj)); }
-function getPlayer(){ return localStorage.getItem(LS_PLAYER)||''; }
-function savePlayer(n){ localStorage.setItem(LS_PLAYER,n); }
-
-function setPlayer(){
-  const v=document.getElementById('nameInput').value.trim();
-  if(!v){ alert('Γράψε το όνομά σου!'); return; }
-  savePlayer(v);
-  showPlayerUI(v);
-  renderPredictions();
-}
-
-function changePlayer(){
-  savePlayer('');
-  document.getElementById('playerGreeting').style.display='none';
-  document.getElementById('nameSection').style.display='';
-  document.getElementById('nameInput').value='';
-}
-
-function showPlayerUI(name){
-  document.getElementById('nameSection').style.display='none';
-  const g=document.getElementById('playerGreeting');
-  g.style.display='';
-  document.getElementById('greetingText').textContent='👋 Γεια σου, '+name+'!';
-}
-
-function renderPredictions(){
-  const player=getPlayer();
-  if(player){
-    showPlayerUI(player);
-  } else {
-    document.getElementById('nameSection').style.display='';
-    document.getElementById('playerGreeting').style.display='none';
-  }
-
-  const preds=getPreds();
-  const myPreds=preds[player]||{};
-
-  let html='';
-  for(const m of MATCHES){
-    const live=isLive(m), done=isDone(m);
-    const result=m.result; // null | 'home' | 'draw' | 'away'
-    const pick=myPreds[m.id]; // my pick
-
-    let cardClass='pred-match-card';
-    if(pick&&result){
-      cardClass+=(pick===result?' correct':' wrong');
-    } else if(pick){
-      cardClass+=' predicted';
-    }
-
-    let feedbackHtml='';
-    if(pick&&result){
-      const ok=pick===result;
-      feedbackHtml=`<div class="pred-result-label ${ok?'correct':'wrong'}">${ok?'✅ Σωστά! +3 πόντοι 🎉':'❌ Λάθος, επόμενη φορά!'}</div>`;
-    }
-
-    const disabled=(done||live||!player)?'disabled':'';
-    const homeClass=`pick-btn${pick==='home'?(result?pick==='home'&&result==='home'?' correct-pick':pick==='home'&&result&&result!=='home'?' wrong-pick':' selected':' selected'):''}`;
-    const drawClass=`pick-btn${pick==='draw'?(result?pick==='draw'&&result==='draw'?' correct-pick':pick==='draw'&&result&&result!=='draw'?' wrong-pick':' selected':' selected'):''}`;
-    const awayClass=`pick-btn${pick==='away'?(result?pick==='away'&&result==='away'?' correct-pick':pick==='away'&&result&&result!=='away'?' wrong-pick':' selected':' selected'):''}`;
-
-    // reveal correct if done
-    const hExtra=result==='home'&&pick&&pick!=='home'?' reveal-right':'';
-    const dExtra=result==='draw'&&pick&&pick!=='draw'?' reveal-right':'';
-    const aExtra=result==='away'&&pick&&pick!=='away'?' reveal-right':'';
-
-    html+=`<div class="${cardClass}">
-      <div class="pred-match-header">
-        <span class="pred-match-date">📅 ${m.date.split('-').reverse().slice(0,2).join('/')} · ${m.time}</span>
-        ${live?'<span class="live-badge" style="font-size:12px;padding:5px 12px;">🔴 LIVE</span>':done&&m.result?'<span style="color:var(--gold);font-weight:900;font-size:13px;">✔ Τελείωσε</span>':''}
-      </div>
-      <div class="pred-match-teams-big">${m.home} <span style="color:#90EE90;font-size:.65em;">⚽</span> ${m.away}</div>
-      <div class="pick-btns">
-        <button class="${homeClass}${hExtra}" ${disabled} onclick="makePick('${m.id}','home')">
-          ${m.home}<br><span style="font-size:.75em;opacity:.8;">Κερδίζει</span>
-        </button>
-        <button class="${drawClass}${dExtra}" ${disabled} onclick="makePick('${m.id}','draw')">
-          🤝<br><span style="font-size:.75em;">Ισοπαλία</span>
-        </button>
-        <button class="${awayClass}${aExtra}" ${disabled} onclick="makePick('${m.id}','away')">
-          ${m.away}<br><span style="font-size:.75em;opacity:.8;">Κερδίζει</span>
-        </button>
-      </div>
-      ${feedbackHtml}
-    </div>`;
-  }
-  document.getElementById('predMatchList').innerHTML=html;
-  renderLeaderboard();
-}
-
-function makePick(matchId, pick){
-  const player=getPlayer();
-  if(!player){ alert('Πρώτα γράψε το όνομά σου!'); return; }
-  const preds=getPreds();
-  if(!preds[player]) preds[player]={};
-  preds[player][matchId]=pick;
-  savePreds(preds);
-  renderPredictions();
-}
-
-function calcScore(playerPreds){
-  let score=0, correct=0, total=0;
-  for(const m of MATCHES){
-    if(m.result && playerPreds[m.id]){
-      total++;
-      if(playerPreds[m.id]===m.result){ score+=3; correct++; }
-    }
-  }
-  return {score, correct, total};
-}
-
-function renderLeaderboard(){
-  const preds=getPreds();
-  const players=Object.keys(preds);
-  if(!players.length){
-    document.getElementById('leaderboard').innerHTML='<div class="lb-empty">Δεν υπάρχουν προβλέψεις ακόμα! 👆</div>';
-    return;
-  }
-
-  const rows=players.map(name=>{
-    const {score,correct,total}=calcScore(preds[name]);
-    const picks=Object.keys(preds[name]).length;
-    return {name,score,correct,total,picks};
-  }).sort((a,b)=>b.score-a.score||b.picks-a.picks);
-
-  const medals=['🥇','🥈','🥉'];
-  let html='';
-  rows.forEach((r,i)=>{
-    const medal=medals[i]||`${i+1}.`;
-    const currentPlayer=getPlayer();
-    const isCurrent=(r.name===currentPlayer);
-    html+=`<div class="lb-row" style="${isCurrent?'background:rgba(255,215,0,.12);border-radius:14px;':''}">
-      <span class="lb-rank">${medal}</span>
-      <div><span class="lb-name">${r.name}${isCurrent?' 👈':''}</span><div class="lb-detail">${r.picks} προβλέψεις · ${r.correct}/${r.total} σωστές</div></div>
-      <span class="lb-score">${r.score} pts</span>
-    </div>`;
-  });
-  document.getElementById('leaderboard').innerHTML=html;
-}
-
-/* ============================================================
-   QUIZ TAB
-============================================================ */
-let qIdx=0, qScore=0, qAnswered=false, qOrder=[];
-
-function initQuiz(){
-  // shuffle questions
-  qOrder=[...Array(QUIZ.length).keys()].sort(()=>Math.random()-.5);
-  qIdx=0; qScore=0; qAnswered=false;
-  document.getElementById('quizCard').style.display='';
-  document.getElementById('scoreScreen').style.display='none';
-  buildProgress();
-  renderQuestion();
-}
-
-function buildProgress(){
-  const d=document.getElementById('quizProgress');
-  d.innerHTML=qOrder.map((_,i)=>`<div class="qp-dot${i===qIdx?' current':''}" id="dot${i}"></div>`).join('');
-}
-
-function renderQuestion(){
-  const qi=qOrder[qIdx];
-  const q=QUIZ[qi];
-  document.getElementById('quizQNum').textContent=`Ερώτηση ${qIdx+1} από ${QUIZ.length}`;
-  document.getElementById('quizQuestion').textContent=q.q;
-  document.getElementById('quizFeedback').textContent='';
-  document.getElementById('quizFeedback').className='quiz-feedback';
-  document.getElementById('quizExplain').textContent='';
-  document.getElementById('btnNext').disabled=true;
-  qAnswered=false;
-
-  const letters=['Α','Β','Γ'];
-  document.getElementById('quizOpts').innerHTML=q.opts.map((o,i)=>`
-    <button class="quiz-opt" onclick="answerQuiz(${i})">
-      <span class="opt-letter">${letters[i]}</span> ${o}
-    </button>`).join('');
-
-  // progress dots
-  document.querySelectorAll('.qp-dot').forEach((dot,i)=>{ dot.className='qp-dot'+(i===qIdx?' current':''); });
-}
-
-function answerQuiz(chosen){
-  if(qAnswered) return;
-  qAnswered=true;
-  const qi=qOrder[qIdx];
-  const q=QUIZ[qi];
-  const correct=(chosen===q.ans);
-  if(correct) qScore++;
-
-  const btns=document.querySelectorAll('.quiz-opt');
-  btns.forEach(b=>b.disabled=true);
-
-  btns[chosen].classList.add(correct?'correct-ans':'wrong-ans');
-  if(!correct) btns[q.ans].classList.add('reveal-right');
-
-  const fb=document.getElementById('quizFeedback');
-  if(correct){
-    fb.textContent='✅ Μπράβο! Σωστά!';
-    fb.className='quiz-feedback correct-fb';
-  } else {
-    fb.textContent='❌ Λάθος! Η σωστή ήταν '+['Α','Β','Γ'][q.ans];
-    fb.className='quiz-feedback wrong-fb';
-  }
-  document.getElementById('quizExplain').textContent='💡 '+q.explain;
-
-  // dot
-  const dot=document.getElementById('dot'+qIdx);
-  if(dot) dot.className='qp-dot '+(correct?'correct':'wrong');
-
-  document.getElementById('btnNext').disabled=false;
-  document.getElementById('btnNext').textContent=
-    qIdx<QUIZ.length-1 ? 'Επόμενη ➡️' : 'Δες το σκορ 🏆';
-}
-
-function nextQuestion(){
-  qIdx++;
-  if(qIdx>=QUIZ.length){
-    showScore(); return;
-  }
-  buildProgress();
-  renderQuestion();
-}
-
-function showScore(){
-  document.getElementById('quizCard').style.display='none';
-  document.getElementById('scoreScreen').style.display='';
-
-  const pct=qScore/QUIZ.length;
-  let emoji='😅', msg='Μην το βάζεις κάτω, προπόνηση κάνει!';
-  if(pct>=0.9){ emoji='🏆🌟'; msg='Απίστευτο! Είσαι ειδήμων του Μουντιάλ!'; }
-  else if(pct>=0.7){ emoji='⭐⭐⭐'; msg='Πολύ καλά! Ξέρεις πολλά για ποδόσφαιρο!'; }
-  else if(pct>=0.5){ emoji='⚽👍'; msg='Καλά! Συνέχισε να μαθαίνεις!'; }
-  else if(pct>=0.3){ emoji='🤔'; msg='Λίγο ακόμα και θα τα πας τέλεια!'; }
-
-  document.getElementById('scoreEmoji').textContent=emoji;
-  document.getElementById('scoreNum').textContent=qScore+' / '+QUIZ.length;
-  document.getElementById('scoreSub').textContent=msg;
-}
-
-function restartQuiz(){ initQuiz(); }
-
-/* ============================================================
-   INIT
-============================================================ */
-buildSchedule();
-updateCountdown();
-setInterval(updateCountdown, 1000);
-setInterval(buildSchedule, 60000);
-setInterval(()=>{ if(document.getElementById('tab-predictions').classList.contains('active')) renderPredictions(); }, 30000);
-</script>
+<body class="hero-gradient min-h-screen">
+
+    <nav class="fixed top-0 w-full bg-white/80 backdrop-blur-md shadow-sm z-50 py-3 px-4">
+        <div class="max-w-4xl mx-auto flex justify-around items-center">
+            <button onclick="showSection('hero')" class="nav-btn active px-4 py-2 rounded-full text-xs font-bold" id="btn-hero">ΑΡΧΗ</button>
+            <button onclick="showSection('details')" class="nav-btn px-4 py-2 rounded-full text-xs font-bold" id="btn-details">ΠΟΥ & ΠΟΤΕ</button>
+            <button onclick="showSection('stats')" class="nav-btn px-4 py-2 rounded-full text-xs font-bold" id="btn-stats">STATS</button>
+            <button onclick="showSection('rsvp')" class="nav-btn px-4 py-2 rounded-full text-xs font-bold" id="btn-rsvp">RSVP</button>
+        </div>
+    </nav>
+
+    <main class="pt-24 pb-12 px-6 max-w-4xl mx-auto">
+        
+        <!-- Section: Hero -->
+        <section id="hero" class="fade-in block relative overflow-hidden rounded-3xl min-h-[500px]">
+            <div class="absolute -top-12 -left-12 w-64 h-64 md:w-96 md:h-96 pointer-events-none pulse-web z-0">
+                <svg viewBox="0 0 200 200" class="w-full h-full text-red-500/20">
+                    <path d="M 0 40 Q 35 35 40 0 M 0 80 Q 70 70 80 0 M 0 120 Q 105 105 120 0 M 0 160 Q 140 140 160 0 M 0 200 Q 175 175 200 0" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 3" />
+                    <line x1="0" y1="0" x2="200" y2="200" stroke="currentColor" stroke-width="2" />
+                    <line x1="0" y1="0" x2="130" y2="200" stroke="currentColor" stroke-width="1.5" />
+                    <line x1="0" y1="0" x2="200" y2="130" stroke="currentColor" stroke-width="1.5" />
+                </svg>
+            </div>
+            <div class="absolute bottom-0 right-0 w-80 h-80 pointer-events-none z-0 bat-spotlight">
+                <svg viewBox="0 0 300 300" class="w-full h-full">
+                    <defs><radialGradient id="batLightGrad" cx="100%" cy="100%" r="100%"><stop offset="0%" stop-color="#ffcf00" stop-opacity="0.45" /><stop offset="100%" stop-color="#ffcf00" stop-opacity="0" /></radialGradient></defs>
+                    <path d="M 300 300 L 0 80 Q 80 0 150 0 L 300 300 Z" fill="url(#batLightGrad)" />
+                    <g transform="translate(110, 80) scale(0.65)" class="opacity-45"><path d="M 20 25 C 25 25, 30 15, 35 15 C 36 15, 37 18, 37 22 C 39 21, 41 21, 43 22 C 43 18, 44 15, 45 15 C 50 15, 55 25, 60 25 C 70 25, 80 30, 80 38 C 70 35, 55 42, 50 52 C 45 42, 30 35, 20 38 C 20 30, 30 25, 20 25 Z" fill="#1e2937" /></g>
+                </svg>
+            </div>
+
+            <div class="text-center mb-12 relative pt-8">
+                <!-- Lego Spiderman Character -->
+                <div class="absolute -top-4 left-2 md:left-12 w-20 h-20 md:w-28 md:h-28 float-spidey z-10">
+                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
+                        <rect x="15" y="20" width="70" height="70" rx="10" fill="#e3000b" />
+                        <circle cx="35" cy="15" r="8" fill="#c2000a" />
+                        <circle cx="65" cy="15" r="8" fill="#c2000a" />
+                        <!-- Spider Web details on suit -->
+                        <path d="M 50 20 L 50 90 M 15 55 L 85 55" stroke="#1f2937" stroke-width="1.5" opacity="0.3" />
+                        <path d="M 25 45 Q 38 40 45 52 Q 35 60 25 45 Z" fill="white" stroke="#1e293b" stroke-width="3" />
+                        <path d="M 75 45 Q 62 40 55 52 Q 65 60 75 45 Z" fill="white" stroke="#1e293b" stroke-width="3" />
+                    </svg>
+                </div>
+                <!-- Lego Batman Character -->
+                <div class="absolute -top-4 right-2 md:right-12 w-20 h-20 md:w-28 md:h-28 float-batman z-10">
+                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
+                        <rect x="15" y="20" width="70" height="70" rx="10" fill="#374151" />
+                        <circle cx="35" cy="15" r="8" fill="#1f2937" />
+                        <circle cx="65" cy="15" r="8" fill="#1f2937" />
+                        <path d="M 15 50 L 35 50 L 45 58 L 55 58 L 65 50 L 85 50 L 85 90 L 15 90 Z" fill="#1f2937" />
+                        <polygon points="26,45 42,48 40,53 24,49" fill="#facc15" />
+                        <polygon points="74,45 58,48 60,53 76,49" fill="#facc15" />
+                    </svg>
+                </div>
+
+                <div class="inline-block bg-[#ffcf00] px-8 py-5 rounded-3xl brick-shadow mb-6 relative z-20">
+                    <h1 class="text-7xl md:text-9xl rounded-title text-[#333] leading-none">5</h1>
+                    <p class="font-black tracking-widest text-xs mt-2">ΕΤΩΝ</p>
+                </div>
+                <h2 class="text-5xl md:text-7xl mb-4 text-[#e3000b] rounded-title tracking-tight relative z-20">ΣΠΥΡΟΣ</h2>
+                <p class="text-lg text-gray-600 max-w-lg mx-auto leading-relaxed px-4 relative z-20">Ο Σούπερ-Σπύρος φοράει τη σούπερ κάπα του, ενώνει τα Lego του και σας καλεί στην πιο σημαντική αποστολή της χρονιάς!</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12 relative z-10">
+                <div class="bg-white p-6 rounded-xl shadow-sm border-b-4 border-blue-500 text-center">
+                    <span class="block text-3xl mb-2">🧱</span>
+                    <h3 class="text-sm mb-1">Χτίζουμε</h3>
+                    <p class="text-xs text-gray-500">Αναμνήσεις</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-b-4 border-red-500 text-center">
+                    <span class="block text-3xl mb-2">🦸‍♂️</span>
+                    <h3 class="text-sm mb-1">Σώζουμε</h3>
+                    <p class="text-xs text-gray-500">Την Διασκέδαση</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-b-4 border-yellow-500 text-center">
+                    <span class="block text-3xl mb-2">🎂</span>
+                    <h3 class="text-sm mb-1">Γιορτάζουμε</h3>
+                    <p class="text-xs text-gray-500">Τον Σπύρο</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Details -->
+        <section id="details" class="hidden">
+            <div class="mb-8"><h2 class="text-2xl rounded-title text-blue-700 mb-2 border-l-8 border-blue-700 pl-4">ΣΤΡΑΤΗΓΕΙΟ ΕΠΙΧΕΙΡΗΣΗΣ</h2></div>
+            <!-- Custom Superhero Swing Illustration with Moon & Stars Background -->
+            <div class="w-full flex justify-center mb-6">
+                <svg viewBox="0 0 400 220" class="w-full max-w-md h-56 rounded-3xl shadow-md bg-slate-950 border-4 border-white overflow-hidden">
+                    <defs>
+                        <linearGradient id="nightSky" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#020617" />
+                            <stop offset="100%" stop-color="#0f172a" />
+                        </linearGradient>
+                    </defs>
+                    <rect width="400" height="220" fill="url(#nightSky)" />
+                    <!-- Moon -->
+                    <circle cx="330" cy="50" r="22" fill="#fef08a" opacity="0.9" />
+                    <circle cx="322" cy="45" r="18" fill="#020617" /> <!-- Moon Shadow -->
+                    <!-- Stars -->
+                    <circle cx="50" cy="40" r="1" fill="#fff" opacity="0.8" /><circle cx="120" cy="70" r="1.5" fill="#fff" opacity="0.5" /><circle cx="210" cy="30" r="1" fill="#fff" opacity="0.9" /><circle cx="280" cy="80" r="1" fill="#fff" opacity="0.4" />
+                    <!-- Penteli Mountain Silhouette -->
+                    <path d="M -20 220 L 80 160 L 190 190 L 320 150 L 420 220 Z" fill="#1e293b" opacity="0.5" />
+                    <!-- Playground Frame Structure -->
+                    <line x1="90" y1="210" x2="140" y2="45" stroke="#facc15" stroke-width="4.5" stroke-linecap="round" />
+                    <line x1="190" y1="210" x2="140" y2="45" stroke="#facc15" stroke-width="4.5" stroke-linecap="round" />
+                    <line x1="210" y1="210" x2="260" y2="45" stroke="#facc15" stroke-width="4.5" stroke-linecap="round" />
+                    <line x1="310" y1="210" x2="260" y2="45" stroke="#facc15" stroke-width="4.5" stroke-linecap="round" />
+                    <line x1="120" y1="45" x2="280" y2="45" stroke="#facc15" stroke-width="6" stroke-linecap="round" />
+                    
+                    <!-- Lego Batman Standing Heroically on Top Structure -->
+                    <g transform="translate(122, 10) scale(0.65)">
+                        <!-- Batman Cape -->
+                        <path d="M 12 25 L -5 50 L 3 52 L 10 38 L 18 38 L 25 52 L 33 50 L 16 25 Z" fill="#000" />
+                        <!-- Lego Legs & Body -->
+                        <rect x="5" y="32" width="18" height="20" rx="1" fill="#1f2937" />
+                        <!-- Head / Mask -->
+                        <rect x="7" y="16" width="14" height="16" rx="3" fill="#1f2937" />
+                        <!-- Ears -->
+                        <polygon points="7,16 11,6 12,16" fill="#1f2937" />
+                        <polygon points="21,16 17,6 16,16" fill="#1f2937" />
+                        <!-- Eyes Glow -->
+                        <rect x="9" y="21" width="3" height="2" fill="#fff" /><rect x="16" y="21" width="3" height="2" fill="#fff" />
+                    </g>
+
+                    <!-- Animated Swing with Lego Spiderman swinging -->
+                    <g class="swinging-hero">
+                        <line x1="185" y1="45" x2="185" y2="135" stroke="#e2e8f0" stroke-width="2" />
+                        <line x1="215" y1="45" x2="215" y2="135" stroke="#e2e8f0" stroke-width="2" />
+                        <!-- Swing Seat -->
+                        <rect x="180" y="135" width="40" height="4" rx="1" fill="#ef4444" />
+                        
+                        <!-- Lego Spiderman Sitting & Swinging -->
+                        <g transform="translate(182, 90)">
+                            <!-- Legs & Torso -->
+                            <rect x="5" y="32" width="12" height="15" rx="2" fill="#0055ad" />
+                            <rect x="19" y="32" width="12" height="15" rx="2" fill="#0055ad" />
+                            <path d="M 4 15 L 32 15 L 28 34 L 8 34 Z" fill="#e3000b" />
+                            <!-- Spider Emblem -->
+                            <circle cx="18" cy="24" r="3" fill="#000" />
+                            <!-- Head -->
+                            <rect x="9" y="0" width="18" height="16" rx="4" fill="#e3000b" />
+                            <!-- Mask Eyes -->
+                            <polygon points="11,6 15,6 13,11" fill="#fff" stroke="#000" stroke-width="1" />
+                            <polygon points="25,6 21,6 23,11" fill="#fff" stroke="#000" stroke-width="1" />
+                        </g>
+                    </g>
+                </svg>
+            </div>
+            <div class="bg-white rounded-3xl p-8 shadow-lg mb-8">
+                <div class="mb-4"><p class="text-xs font-bold text-gray-400 mb-1">ΗΜΕΡΟΜΗΝΙΑ</p><p class="text-2xl font-black">Δευτέρα, 15 Ιουνίου</p></div>
+                <div class="mb-4"><p class="text-xs font-bold text-gray-400 mb-1">ΩΡΑ</p><p class="text-2xl font-black text-red-600">18:30</p></div>
+                <div class="flex flex-col gap-2">
+                    <p class="text-xs font-bold text-gray-400 mb-1">ΤΟΠΟΘΕΣΙΑ</p>
+                    <p class="text-xl font-black">Παιδική χαρά, Θησέως 1, Πεντέλη</p>
+                    <div class="mt-1">
+                        <a href="https://maps.app.goo.gl/ow8u9WpX6y8fQSHB6?g_st=iw" target="_blank" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95">
+                            📍 Άνοιγμα στο Google Maps
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div id="countdown" class="bg-gray-800 text-white rounded-2xl p-6 text-center flex justify-around"></div>
+        </section>
+
+        <!-- Section: Stats -->
+        <section id="stats" class="hidden relative overflow-hidden rounded-3xl bg-slate-50 min-h-[500px] border-2 border-white shadow-inner p-8">
+            <div class="lego-rain" id="legoRain"></div>
+            <div class="absolute inset-0 z-0 opacity-[0.03]" style="background-image: radial-gradient(#333 1px, transparent 1px); background-size: 20px 20px;"></div>
+
+            <div class="relative z-10">
+                <div class="mb-10 text-center">
+                    <h2 class="text-3xl rounded-title text-slate-800 mb-2">MISSION ANALYTICS</h2>
+                    <div class="h-1 w-24 bg-yellow-500 mx-auto rounded-full"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                    <div class="relative flex justify-center items-center">
+                        <div class="reactor-glow bg-white p-8 rounded-full shadow-xl relative z-10">
+                            <div class="chart-container">
+                                <canvas id="energyChart"></canvas>
+                            </div>
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+                                <span class="block text-4xl rounded-title text-slate-800">5</span>
+                                <span class="text-[8px] font-bold uppercase text-slate-400">Core Level</span>
+                            </div>
+                        </div>
+                        <div class="absolute w-[360px] h-[360px] border-2 border-dashed border-slate-200 rounded-full animate-[spin_20s_linear_infinite]"></div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="stat-card bg-white/80 backdrop-blur-sm p-5 rounded-2xl shadow-sm border-l-8 border-red-500 flex items-center gap-5">
+                            <div class="text-3xl">🚀</div>
+                            <div>
+                                <p class="rounded-title text-lg text-slate-800">Επίπεδο Διασκέδασης</p>
+                                <div class="w-full bg-slate-100 h-2 mt-1 rounded-full overflow-hidden">
+                                    <div class="bg-red-500 h-full w-[100%] animate-[pulse_2s_infinite]"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card bg-white/80 backdrop-blur-sm p-5 rounded-2xl shadow-sm border-l-8 border-blue-500 flex items-center gap-5">
+                            <div class="text-3xl">🧱</div>
+                            <div>
+                                <p class="rounded-title text-lg text-slate-800">Lego Bricks / Λεπτό</p>
+                                <p class="text-2xl font-black text-blue-600">50+</p>
+                            </div>
+                        </div>
+                        <div class="stat-card bg-white/80 backdrop-blur-sm p-5 rounded-2xl shadow-sm border-l-8 border-yellow-500 flex items-center gap-5">
+                            <div class="text-3xl">⚡</div>
+                            <div>
+                                <p class="rounded-title text-lg text-slate-800">Σούπερ Δυνάμεις</p>
+                                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Unlimited Available</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: RSVP -->
+        <section id="rsvp" class="hidden">
+            <div class="mb-8"><h2 class="text-2xl rounded-title text-red-600 mb-2 border-l-8 border-red-600 pl-4">ΕΠΙΒΕΒΑΙΩΣΗ ΑΠΟΣΤΟΛΗΣ</h2></div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                
+                <!-- RSVP Confirmation Interactive Form (WhatsApp Only) -->
+                <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
+                    <h3 class="text-xl mb-4 text-slate-800">Δήλωση Συμμετοχής</h3>
+                    
+                    <div id="rsvpForm">
+                        <div class="mb-4">
+                            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Ονοματεπώνυμο Καλεσμένου</label>
+                            <input type="text" id="guestName" required placeholder="π.χ. Οικογένεια Παπαδοπούλου" 
+                                class="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Αριθμός Παιδιών</label>
+                            <select id="kidsCount" class="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm">
+                                <option value="1">1 Παιδί</option>
+                                <option value="2" selected>2 Παιδιά</option>
+                                <option value="3">3 Παιδιά</option>
+                                <option value="4+">4+ Παιδιά</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Σχόλια / Αλλεργίες (Προαιρετικό)</label>
+                            <textarea id="guestComments" rows="2" placeholder="π.χ. Αλλεργία σε ξηρούς καρπούς" 
+                                class="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm resize-none"></textarea>
+                        </div>
+
+                        <div id="warningBox" class="hidden mb-4 p-4 bg-amber-50 text-amber-800 rounded-xl border border-amber-200 text-sm font-bold">
+                            ⚠️ Παρακαλώ συμπληρώστε το ονοματεπώνυμό σας πρώτα!
+                        </div>
+
+                        <div class="flex flex-col gap-3">
+                            <!-- Option: Send via WhatsApp -->
+                            <button type="button" onclick="sendViaWhatsApp()" 
+                                class="w-full bg-[#25D366] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 brick-shadow hover:brightness-105 active:scale-95 transition-all text-base">
+                                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.963C16.588 1.981 14.115.95 11.487.95 6.05 1.95 1.62 6.32 1.616 11.75c-.001 1.61.452 3.18 1.311 4.578L1.93 21.05l4.717-1.896zm12.315-6.614c-.334-.165-1.97-.961-2.275-1.071-.305-.11-.527-.165-.749.165-.221.33-.855 1.071-1.049 1.29-.194.22-.39.248-.724.083-.334-.165-1.41-.513-2.685-1.638-.992-.873-1.662-1.953-1.857-2.28-.194-.33-.021-.508.145-.671.149-.147.334-.385.502-.578.167-.193.223-.33.334-.55.111-.22.055-.413-.028-.578-.083-.166-.749-1.785-1.026-2.446-.27-.643-.543-.556-.749-.566-.192-.01-.413-.012-.634-.012-.22 0-.578.083-.881.413-.303.33-1.157 1.127-1.157 2.748 0 1.62 1.192 3.19 1.356 3.41.165.22 2.348 3.551 5.681 4.978.792.34 1.41.542 1.892.694.797.25 1.52.215 2.093.131.639-.094 1.97-.796 2.247-1.564.278-.769.278-1.43.195-1.564-.083-.13-.305-.213-.639-.378z"/></svg>
+                                Αποστολή μέσω WhatsApp
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dress Code and Call details -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl text-center border-2 border-dashed border-gray-200">
+                    <p class="text-gray-500 text-sm mb-2">ΚΑΛΕΣΤΕ Η ΣΤΕΙΛΤΕ ΜΗΝΥΜΑ</p>
+                    <a href="tel:6937042382" class="text-3xl font-black text-gray-800 hover:text-red-600 block mb-6">6937042382</a>
+                    
+                    <div class="py-6 border-t border-gray-100">
+                        <p class="font-bold mb-4">Dress Code για Σούπερ Ήρωες:</p>
+                        <div class="flex justify-center gap-4 py-2">
+                            <div class="flex flex-col items-center bg-red-50 p-4 rounded-2xl w-24 border-2 border-red-100">
+                                <span class="text-4xl mb-2">👕</span>
+                                <span class="text-xs font-black text-red-700">T-Shirt</span>
+                            </div>
+                            <div class="flex flex-col items-center bg-blue-50 p-4 rounded-2xl w-24 border-2 border-blue-100">
+                                <span class="text-4xl mb-2">🩳</span>
+                                <span class="text-xs font-black text-blue-700">Σορτσάκι</span>
+                            </div>
+                            <div class="flex flex-col items-center bg-yellow-50 p-4 rounded-2xl w-24 border-2 border-yellow-100">
+                                <span class="text-4xl mb-2">👟</span>
+                                <span class="text-xs font-black text-yellow-700">Αθλητικά</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let chartsInitialized = false;
+
+        function showSection(sectionId) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            const target = document.getElementById(sectionId);
+            target.classList.remove('hidden');
+            target.classList.add('block', 'fade-in');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + sectionId).classList.add('active');
+
+            if (sectionId === 'stats') {
+                if (!chartsInitialized) initCharts();
+                createLegoRain();
+            } else {
+                stopLegoRain();
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function createLegoRain() {
+            const container = document.getElementById('legoRain');
+            container.innerHTML = '';
+            const colors = ['#e3000b', '#0055ad', '#ffcf00', '#333'];
+            for (let i = 0; i < 15; i++) {
+                const brick = document.createElement('div');
+                brick.className = 'brick';
+                brick.style.left = Math.random() * 100 + '%';
+                brick.style.animationDelay = Math.random() * 5 + 's';
+                brick.style.background = colors[Math.floor(Math.random() * colors.length)] + '22';
+                container.appendChild(brick);
+            }
+        }
+
+        function stopLegoRain() {
+            document.getElementById('legoRain').innerHTML = '';
+        }
+
+        function updateCountdown() {
+            const targetDate = new Date('June 15, 2026 18:30:00').getTime();
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const container = document.getElementById('countdown');
+            if (distance < 0) {
+                container.innerHTML = "Η ΑΠΟΣΤΟΛΗ ΞΕΚΙΝΗΣΕ!";
+            } else {
+                container.innerHTML = `<div><span class="block text-2xl font-bold">${days}</span><span class="text-[10px] uppercase opacity-60">Ημέρες</span></div><div><span class="block text-2xl font-bold">${hours}</span><span class="text-[10px] uppercase opacity-60">Ώρες</span></div><div><span class="block text-2xl font-bold">${minutes}</span><span class="text-[10px] uppercase opacity-60">Λεπτά</span></div>`;
+            }
+        }
+
+        setInterval(updateCountdown, 60000);
+        updateCountdown();
+
+        function initCharts() {
+            const ctx = document.getElementById('energyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Παιχνίδι', 'Τούρτα', 'Γέλιο', 'Lego Building'],
+                    datasets: [{
+                        data: [40, 20, 25, 15],
+                        backgroundColor: ['#e3000b', '#0055ad', '#ffcf00', '#475569'],
+                        borderColor: '#fff',
+                        borderWidth: 4,
+                        hoverOffset: 15,
+                        borderRadius: 10,
+                        spacing: 5
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '75%'
+                }
+            });
+            chartsInitialized = true;
+        }
+
+        /* Interactive Notification & Messaging Systems */
+        function sendViaWhatsApp() {
+            const name = document.getElementById('guestName').value.trim();
+            const kids = document.getElementById('kidsCount').value;
+            const comments = document.getElementById('guestComments').value.trim();
+            const warningBox = document.getElementById('warningBox');
+            
+            if (!name) {
+                warningBox.classList.remove('hidden');
+                document.getElementById('guestName').focus();
+                return;
+            }
+            warningBox.classList.add('hidden');
+            
+            let message = `Γεια σας! Θα έρθουμε με χαρά στο πάρτι του Σπύρου! 🎉\n\n👤 Ονοματεπώνυμο: ${name}\n👶 Παιδιά: ${kids}`;
+            if (comments) {
+                message += `\n💬 Σχόλια: ${comments}`;
+            }
+            
+            const encodedMessage = encodeURIComponent(message);
+            // Re-directs directly to WhatsApp using parent's telephone
+            window.open(`https://api.whatsapp.com/send?phone=306937042382&text=${encodedMessage}`, '_blank');
+        }
+    </script>
 </body>
 </html>
