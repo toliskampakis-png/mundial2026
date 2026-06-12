@@ -20,6 +20,7 @@
       --card-border: rgba(255,255,255,0.25);
     }
 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
       background: linear-gradient(160deg, #0d5c22 0%, #1a6b2a 30%, #2d9e42 60%, #1a8a3a 80%, #0d5c22 100%);
@@ -40,6 +41,8 @@
     }
     .tab-btn:hover { background: rgba(255,255,255,0.25); }
     .tab-btn.active { background: var(--gold); border-color: var(--gold); color: #1a1a00; box-shadow: 0 4px 18px rgba(255,215,0,.45); }
+    .tab-btn.admin-tab { background: rgba(255,50,50,0.3); border-color: rgba(255,100,100,0.5); }
+    .tab-btn.admin-tab.active { background: #cc0000; border-color: #ff4444; color: #fff; }
 
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
@@ -51,6 +54,7 @@
       font-size: clamp(50px,12vw,80px); display: inline-block;
       animation: bounce 1.2s ease-in-out infinite;
       filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));
+      cursor: pointer; user-select: none;
     }
     @keyframes bounce {
       0%,100% { transform: translateY(0) rotate(0deg); }
@@ -268,6 +272,53 @@
     .score-sub   { font-size:clamp(15px,4vw,24px); color:#c8ffc0; font-weight:700; margin:10px 0; }
     .score-num   { font-size:clamp(48px,14vw,90px); font-weight:900; color:#fff; text-shadow:4px 4px 0 var(--green-dark); }
 
+    /* ADMIN PANEL */
+    .admin-login { text-align:center; padding:20px; }
+    .admin-login h2 { color:#ff6666; font-size:clamp(20px,5vw,32px); margin-bottom:16px; }
+    .admin-pass-form { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:14px 0; }
+    .admin-input {
+      flex:1; min-width:180px; max-width:260px; padding:12px 18px;
+      border-radius:50px; border:3px solid #ff6666; font-family:inherit;
+      font-size:clamp(15px,4vw,20px); font-weight:900;
+      background:rgba(255,255,255,.9); color:#1a1a00; outline:none;
+    }
+    .btn-danger {
+      background:linear-gradient(135deg,#cc0000,#ff4444); border:none;
+      border-radius:50px; padding:12px 26px; font-family:inherit;
+      font-size:clamp(15px,4vw,20px); font-weight:900; color:#fff;
+      cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.3); transition:transform .15s;
+    }
+    .btn-danger:hover { transform:scale(1.05); }
+    .admin-match-card {
+      background:rgba(0,0,0,.2); border-radius:20px; border:2px solid rgba(255,100,100,.3);
+      padding:16px; margin-bottom:12px;
+    }
+    .admin-match-title { font-size:clamp(15px,4vw,22px); font-weight:900; color:#fff; margin-bottom:12px; text-align:center; }
+    .admin-match-subtitle { font-size:clamp(11px,2.5vw,14px); color:#90EE90; font-weight:700; margin-bottom:10px; text-align:center; }
+    .admin-btns { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+    .admin-pick-btn {
+      flex:1; min-width:80px; max-width:180px; padding:10px 8px; border-radius:14px;
+      font-family:inherit; font-size:clamp(12px,3vw,16px); font-weight:900;
+      border:3px solid rgba(255,255,255,.25); background:rgba(255,255,255,.1); color:#fff;
+      cursor:pointer; transition:all .18s; text-align:center; line-height:1.3;
+    }
+    .admin-pick-btn:hover { background:rgba(255,255,255,.22); transform:translateY(-2px); }
+    .admin-pick-btn.set-home { border-color:#00cc66; background:rgba(0,204,102,.25); color:#00ff88; }
+    .admin-pick-btn.set-draw { border-color:#FFD700; background:rgba(255,215,0,.2); color:#FFD700; }
+    .admin-pick-btn.set-away { border-color:#6699ff; background:rgba(100,150,255,.2); color:#99bbff; }
+    .admin-pick-btn.clear-btn { border-color:rgba(255,80,80,.5); background:rgba(255,80,80,.1); color:rgba(255,150,150,1); }
+    .admin-current-result {
+      text-align:center; margin-top:8px; font-size:clamp(12px,2.8vw,15px);
+      font-weight:900; color:rgba(255,255,255,.5);
+    }
+    .admin-current-result.has-result { color:var(--gold); }
+    .admin-save-banner {
+      background:rgba(0,200,100,.2); border:2px solid rgba(0,200,100,.4);
+      border-radius:14px; padding:10px 18px; text-align:center;
+      font-size:clamp(13px,3vw,17px); font-weight:900; color:#00ff88;
+      margin-bottom:14px; display:none;
+    }
+
     .footer { text-align:center; color:rgba(255,255,255,.4); font-size:12px; padding:20px; font-weight:700; }
 
     @media(max-width:480px){
@@ -281,7 +332,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
-<div class="tab-bar">
+<div class="tab-bar" id="tabBar">
   <button class="tab-btn active" onclick="showTab('home',this)">🏠 Αρχική</button>
   <button class="tab-btn" onclick="showTab('predictions',this)">🎯 Προβλέψεις</button>
   <button class="tab-btn" onclick="showTab('quiz',this)">❓ Quiz</button>
@@ -291,7 +342,7 @@
 <div id="tab-home" class="tab-panel active">
 <div class="container">
   <div class="header">
-    <div class="ball-bounce">⚽</div>
+    <div class="ball-bounce" id="adminBall" onclick="adminBallClick()">⚽</div>
     <div class="title">Μουντιάλ <span>2026</span></div>
     <div class="subtitle">🏆 Παγκόσμιο Κύπελλο · ΗΠΑ · Μεξικό · Καναδάς 🏆</div>
   </div>
@@ -382,6 +433,40 @@
 </div>
 </div>
 
+<!-- ADMIN TAB -->
+<div id="tab-admin" class="tab-panel">
+<div class="container">
+  <div class="header" style="text-align:center;">
+    <div style="font-size:clamp(36px,10vw,65px);">🔐</div>
+    <div class="title" style="color:#ff9999;">Admin Panel</div>
+  </div>
+
+  <div class="card" id="adminLoginCard">
+    <div class="admin-login">
+      <h2>🔒 Κωδικός διαχειριστή</h2>
+      <div class="admin-pass-form">
+        <input class="admin-input" id="adminPassInput" type="password" placeholder="Κωδικός..."
+               onkeydown="if(event.key==='Enter') checkAdminPass()">
+        <button class="btn-danger" onclick="checkAdminPass()">Είσοδος 🔓</button>
+      </div>
+      <div id="adminPassError" style="color:#ff6666;font-weight:900;margin-top:10px;font-size:14px;"></div>
+    </div>
+  </div>
+
+  <div id="adminPanel" style="display:none;">
+    <div class="admin-save-banner" id="adminSaveBanner">✅ Αποθηκεύτηκε!</div>
+    <div class="section-title" style="color:#ff9999;">⚽ Αποτελέσματα Αγώνων</div>
+    <p style="text-align:center;color:rgba(255,255,255,.6);font-size:13px;font-weight:700;margin-bottom:14px;">
+      Πάτα το αποτέλεσμα για κάθε αγώνα. Αποθηκεύεται αυτόματα στο Firebase!
+    </p>
+    <div id="adminMatchList"></div>
+    <div style="text-align:center;margin-top:20px;">
+      <button class="btn-secondary" onclick="adminLogout()">🚪 Αποσύνδεση</button>
+    </div>
+  </div>
+</div>
+</div>
+
 <script>
 /* ============================================================
    FIREBASE CONFIG
@@ -396,22 +481,30 @@ const FIREBASE_CONFIG = {
 };
 
 /* ============================================================
+   ADMIN PASSWORD — άλλαξέ το αν θέλεις!
+============================================================ */
+const ADMIN_PASSWORD = "mundial2026";
+
+/* ============================================================
    MATCHES DATA
 ============================================================ */
 const MATCHES = [
-  { id:'m1',  date:'2026-06-11', time:'22:00', home:'🇲🇽 Μεξικό',    away:'🇿🇦 Ν. Αφρική', city:'Μέξικο Σίτι',   ch:['ΕΡΤ1','ΕΡΤ2 ΣΠΟΡ'], result:null },
-  { id:'m2',  date:'2026-06-12', time:'05:00', home:'🇰🇷 Ν. Κορέα',   away:'🇨🇿 Τσεχία',    city:'Γουαδαλαχάρα', ch:['ΕΡΤ1'],              result:null },
-  { id:'m3',  date:'2026-06-12', time:'22:00', home:'🇨🇦 Καναδάς',    away:'🇧🇦 Βοσνία',    city:'Τορόντο',       ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
-  { id:'m4',  date:'2026-06-13', time:'04:00', home:'🇺🇸 ΗΠΑ',        away:'🇵🇾 Παραγουάη', city:'Λος Άντζελες',  ch:['ΕΡΤ1'],              result:null },
-  { id:'m5',  date:'2026-06-13', time:'22:00', home:'🇶🇦 Κατάρ',      away:'🇨🇭 Ελβετία',   city:'Σαν Φρανσίσκο', ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
-  { id:'m6',  date:'2026-06-14', time:'01:00', home:'🇧🇷 Βραζιλία',   away:'🇲🇦 Μαρόκο',    city:'Νέα Υόρκη',     ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
-  { id:'m7',  date:'2026-06-14', time:'04:00', home:'🇭🇹 Αϊτή',       away:'🏴󠁧󠁢󠁳󠁣󠁴󠁿 Σκωτία',  city:'Βοστώνη',       ch:['ΕΡΤ1'],              result:null },
-  { id:'m8',  date:'2026-06-14', time:'07:00', home:'🇦🇺 Αυστραλία',  away:'🇹🇷 Τουρκία',   city:'Βανκούβερ',     ch:['ΕΡΤ1'],              result:null },
-  { id:'m9',  date:'2026-06-14', time:'20:00', home:'🇩🇪 Γερμανία',   away:'🇨🇼 Κουρασάο',  city:'Χιούστον',      ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
-  { id:'m10', date:'2026-06-14', time:'23:00', home:'🇳🇱 Ολλανδία',   away:'🇯🇵 Ιαπωνία',   city:'Ντάλας',        ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
-  { id:'m11', date:'2026-06-15', time:'02:00', home:'🇨🇮 Ακτή Ελεφ.',away:'🇪🇨 Εκουαδόρ',  city:'Φιλαδέλφεια',   ch:['ΕΡΤ2 ΣΠΟΡ'],         result:null },
-  { id:'m12', date:'2026-06-15', time:'05:00', home:'🇸🇪 Σουηδία',    away:'🇹🇳 Τυνησία',   city:'Μοντερέι',      ch:['ΕΡΤ1'],              result:null },
+  { id:'m1',  date:'2026-06-11', time:'22:00', home:'🇲🇽 Μεξικό',    away:'🇿🇦 Ν. Αφρική', city:'Μέξικο Σίτι',   ch:['ΕΡΤ1','ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m2',  date:'2026-06-12', time:'05:00', home:'🇰🇷 Ν. Κορέα',   away:'🇨🇿 Τσεχία',    city:'Γουαδαλαχάρα', ch:['ΕΡΤ1'] },
+  { id:'m3',  date:'2026-06-12', time:'22:00', home:'🇨🇦 Καναδάς',    away:'🇧🇦 Βοσνία',    city:'Τορόντο',       ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m4',  date:'2026-06-13', time:'04:00', home:'🇺🇸 ΗΠΑ',        away:'🇵🇾 Παραγουάη', city:'Λος Άντζελες',  ch:['ΕΡΤ1'] },
+  { id:'m5',  date:'2026-06-13', time:'22:00', home:'🇶🇦 Κατάρ',      away:'🇨🇭 Ελβετία',   city:'Σαν Φρανσίσκο', ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m6',  date:'2026-06-14', time:'01:00', home:'🇧🇷 Βραζιλία',   away:'🇲🇦 Μαρόκο',    city:'Νέα Υόρκη',     ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m7',  date:'2026-06-14', time:'04:00', home:'🇭🇹 Αϊτή',       away:'🏴󠁧󠁢󠁳󠁣󠁴󠁿 Σκωτία',  city:'Βοστώνη',       ch:['ΕΡΤ1'] },
+  { id:'m8',  date:'2026-06-14', time:'07:00', home:'🇦🇺 Αυστραλία',  away:'🇹🇷 Τουρκία',   city:'Βανκούβερ',     ch:['ΕΡΤ1'] },
+  { id:'m9',  date:'2026-06-14', time:'20:00', home:'🇩🇪 Γερμανία',   away:'🇨🇼 Κουρασάο',  city:'Χιούστον',      ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m10', date:'2026-06-14', time:'23:00', home:'🇳🇱 Ολλανδία',   away:'🇯🇵 Ιαπωνία',   city:'Ντάλας',        ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m11', date:'2026-06-15', time:'02:00', home:'🇨🇮 Ακτή Ελεφ.',away:'🇪🇨 Εκουαδόρ',  city:'Φιλαδέλφεια',   ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m12', date:'2026-06-15', time:'05:00', home:'🇸🇪 Σουηδία',    away:'🇹🇳 Τυνησία',   city:'Μοντερέι',      ch:['ΕΡΤ1'] },
 ];
+
+// Live results — loaded from Firebase
+let liveResults = {};
 
 const DAY_NAMES = {
   '2026-06-11':'Πέμπτη 11 Ιουνίου 🎉 ΠΡΕΜΙΕΡΑ!',
@@ -422,7 +515,7 @@ const DAY_NAMES = {
 };
 
 /* ============================================================
-   QUIZ POOL (55 ερωτήσεις — 10 τυχαίες κάθε φορά)
+   QUIZ POOL
 ============================================================ */
 const QUIZ_POOL = [
   { q:'Σε ποιες χώρες γίνεται το Μουντιάλ 2026;', opts:['Βραζιλία & Αργεντινή','ΗΠΑ, Μεξικό & Καναδάς','Γερμανία & Γαλλία'], ans:1, explain:'Φέτος για πρώτη φορά το Μουντιάλ γίνεται σε 3 χώρες ταυτόχρονα!' },
@@ -443,7 +536,6 @@ const QUIZ_POOL = [
   { q:'Πόσα γκολ χρειάζονται για να πετύχεις χατ-τρικ;', opts:['2 γκολ','3 γκολ','4 γκολ'], ans:1, explain:'Χατ-τρικ = 3 γκολ στον ίδιο αγώνα από τον ίδιο παίκτη!' },
   { q:'Τι χρώμα φανέλα φοράει συνήθως η Αγγλία;', opts:['Κόκκινη','Λευκή','Μπλε'], ans:1, explain:'Η Αγγλία παίζει με λευκή φανέλα — λέγονται "Three Lions"!' },
   { q:'Πόσα λεπτά έχει κάθε ημίχρονο;', opts:['30 λεπτά','45 λεπτά','60 λεπτά'], ans:1, explain:'45 λεπτά κάθε ημίχρονο, άρα 90 λεπτά συνολικά!' },
-  { q:'Τι σχήμα έχει το γήπεδο ποδοσφαίρου;', opts:['Τετράγωνο','Ορθογώνιο','Κυκλικό'], ans:1, explain:'Το γήπεδο είναι ορθογώνιο — μεγαλύτερο από ένα τετράγωνο!' },
   { q:'Πόσα τέρματα υπάρχουν σε ένα γήπεδο ποδοσφαίρου;', opts:['1','2','4'], ans:1, explain:'Ένα τέρμα σε κάθε άκρη του γηπέδου — συνολικά 2!' },
   { q:'Ποια χώρα έχει κερδίσει 4 Μουντιάλ, μαζί με τη Γερμανία;', opts:['Ισπανία 🇪🇸','Ιταλία 🇮🇹','Αγγλία 🏴󠁧󠁢󠁥󠁮󠁧󠁿'], ans:1, explain:'Ιταλία και Γερμανία έχουν και οι δύο 4 τίτλους!' },
   { q:'Τι γίνεται αν ο αγώνας είναι ισόπαλος στα νοκ-άουτ;', opts:['Ξαναπαίζουν αύριο','Παράταση και ίσως πέναλτι','Και οι δύο προχωρούν'], ans:1, explain:'Πρώτα παράταση 30 λεπτά, και αν συνεχίζει η ισοπαλία — πέναλτι!' },
@@ -476,7 +568,6 @@ const QUIZ_POOL = [
   { q:'Πόσες φορές έχει κερδίσει η Βραζιλία το Μουντιάλ;', opts:['3 φορές','4 φορές','5 φορές'], ans:2, explain:'Βραζιλία 5 φορές: 1958, 1962, 1970, 1994, 2002 — ρεκόρ!' },
   { q:'Ποιος Πορτογάλος σούπερ σταρ έχει πάνω από 900 γκολ στην καριέρα του;', opts:['Λιονέλ Μέσι','Κριστιάνο Ρονάλντο','Νέιμαρ'], ans:1, explain:'Ο Κριστιάνο Ρονάλντο έχει σκοράρει πάνω από 900 γκολ — ρεκόρ καριέρας!' },
   { q:'Πόσα τετράγωνα έχει μια κλασική μπάλα ποδοσφαίρου;', opts:['16','20','32'], ans:2, explain:'Η κλασική μπάλα έχει 32 κομμάτια — 20 λευκά εξάγωνα και 12 μαύρα πεντάγωνα!' },
-  { q:'Πόσοι διαιτητές υπάρχουν σε έναν αγώνα Μουντιάλ;', opts:['1','3','5'], ans:2, explain:'Ένας κύριος + 2 βοηθοί γραμμής + 1 τέταρτος διαιτητής + VAR!' },
   { q:'Τι είναι το "οφσάιντ";', opts:['Γκολ που δεν μετράει','Παράβαση θέσης του επιτιθέμενου','Φάουλ στον αέρα'], ans:1, explain:'Οφσάιντ = ο επιτιθέμενος είναι μπροστά από τον τελευταίο αμυντικό όταν του δίνουν μπάλα!' },
   { q:'Τι χρώμα έχει η φανέλα της Πορτογαλίας;', opts:['Μπλε & Άσπρη','Κόκκινη & Πράσινη','Πορτοκαλί & Μαύρη'], ans:1, explain:'Η Πορτογαλία φοράει κόκκινη & πράσινη φανέλα — τα χρώματα της σημαίας της!' },
   { q:'Πόσα λεπτά διαρκεί η παράταση αν υπάρχει ισοπαλία;', opts:['15 λεπτά','30 λεπτά','60 λεπτά'], ans:1, explain:'Η παράταση είναι 2 × 15 λεπτά = 30 λεπτά συνολικά!' },
@@ -493,11 +584,9 @@ let QUIZ = [];
 ============================================================ */
 let db = null, USE_FIREBASE = false;
 try {
-  if (FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('ΒΑΛΕ')) {
-    firebase.initializeApp(FIREBASE_CONFIG);
-    db = firebase.firestore();
-    USE_FIREBASE = true;
-  }
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+  USE_FIREBASE = true;
 } catch(e) { console.warn('Firebase:', e.message); }
 
 /* ============================================================
@@ -509,6 +598,7 @@ let allPlayersData = {}, currentPicks = {}, currentPlayerReady = false;
    HELPERS
 ============================================================ */
 function pad(n){ return String(n).padStart(2,'0'); }
+function matchWithResult(m){ return { ...m, result: liveResults[m.id] || null }; }
 function matchDT(m){
   const [y,mo,d]=m.date.split('-').map(Number), [h,mi]=m.time.split(':').map(Number);
   return new Date(Date.UTC(y,mo-1,d,h-3,mi));
@@ -522,6 +612,36 @@ function lsSavePreds(o){ localStorage.setItem(LS_PREDS,JSON.stringify(o)); }
 function getPlayer(){ return localStorage.getItem(LS_PLAYER)||''; }
 function savePlayer(n){ localStorage.setItem(LS_PLAYER,n); }
 
+/* ============================================================
+   FIREBASE — RESULTS LISTENER (real-time)
+============================================================ */
+function startResultsListener(){
+  if(!USE_FIREBASE){ return; }
+  db.collection('config').doc('results').onSnapshot(snap=>{
+    liveResults = snap.exists ? (snap.data() || {}) : {};
+    // refresh all views
+    buildSchedule();
+    renderMatchCards();
+    renderRanking();
+    const p = getPlayer(); if(p) renderHistory(p);
+    renderAdminMatchList();
+  }, err=>{ console.warn('Results listener:', err); });
+}
+
+async function saveResult(matchId, result){
+  if(!USE_FIREBASE){ alert('Firebase δεν είναι συνδεδεμένο!'); return; }
+  try {
+    const update = result === null
+      ? { [matchId]: firebase.firestore.FieldValue.delete() }
+      : { [matchId]: result };
+    await db.collection('config').doc('results').set(update, { merge: true });
+    showAdminSaveBanner();
+  } catch(e){ alert('Σφάλμα αποθήκευσης: ' + e.message); }
+}
+
+/* ============================================================
+   FIREBASE — PLAYERS
+============================================================ */
 async function dbLoadPicks(name){
   const local=(lsGetPreds()[name])||{};
   if(!USE_FIREBASE) return local;
@@ -554,6 +674,7 @@ function showTab(id,btn){
   if(btn)btn.classList.add('active');
   if(id==='predictions')onPredictionsTabShow();
   if(id==='quiz')initQuiz();
+  if(id==='admin')renderAdminMatchList();
 }
 
 async function onPredictionsTabShow(){
@@ -599,7 +720,8 @@ function renderMatchCards(){
   const player=getPlayer(), myPicks=currentPicks;
   let html='';
   for(const m of MATCHES){
-    const live=isLive(m),done=isDone(m),result=m.result,pick=myPicks[m.id];
+    const result = liveResults[m.id] || null;
+    const live=isLive(m),done=isDone(m),pick=myPicks[m.id];
     let cardClass='pred-match-card';
     if(pick&&result) cardClass+=pick===result?' correct':' wrong';
     else if(pick) cardClass+=' predicted';
@@ -615,7 +737,7 @@ function renderMatchCards(){
     html+=`<div class="${cardClass}">
       <div class="pred-match-header">
         <span class="pred-match-date">📅 ${m.date.split('-').reverse().slice(0,2).join('/')} · ${m.time}</span>
-        ${live?'<span class="live-badge" style="font-size:12px;padding:5px 12px;">🔴 LIVE</span>':done&&m.result?'<span style="color:var(--gold);font-weight:900;font-size:13px;">✔ Τελείωσε</span>':''}
+        ${live?'<span class="live-badge" style="font-size:12px;padding:5px 12px;">🔴 LIVE</span>':done&&result?'<span style="color:var(--gold);font-weight:900;font-size:13px;">✔ Τελείωσε</span>':''}
       </div>
       <div class="pred-match-teams-big">${m.home} <span style="color:#90EE90;font-size:.65em;">⚽</span> ${m.away}</div>
       <div class="pick-btns">
@@ -637,7 +759,10 @@ async function makePick(mid,pick){
 
 function calcScore(picks){
   let score=0,correct=0,total=0;
-  for(const m of MATCHES){ if(m.result&&picks[m.id]){total++;if(picks[m.id]===m.result){score+=3;correct++;}} }
+  for(const m of MATCHES){
+    const result = liveResults[m.id] || null;
+    if(result&&picks[m.id]){total++;if(picks[m.id]===result){score+=3;correct++;}}
+  }
   return{score,correct,total};
 }
 
@@ -677,7 +802,7 @@ function pickLabel(pick,m){ return pick==='home'?m.home:pick==='away'?m.away:'�
 function renderHistory(playerName){
   const section=document.getElementById('historySection');
   if(!playerName){section.style.display='none';return;}
-  const completed=MATCHES.filter(m=>m.result!==null||isDone(m));
+  const completed=MATCHES.filter(m=>(liveResults[m.id]||null)!==null||isDone(m));
   if(!completed.length){section.style.display='none';return;}
   const predicted=completed.filter(m=>currentPicks[m.id]);
   section.style.display='';
@@ -685,14 +810,15 @@ function renderHistory(playerName){
   let totalPts=0,correct=0,rowsHtml='';
   for(const m of predicted){
     const pick=currentPicks[m.id]; if(!pick)continue;
-    if(!m.result){
+    const result=liveResults[m.id]||null;
+    if(!result){
       rowsHtml+=`<div class="history-row h-pending"><div class="history-match">${m.home}<small>⚽ ${m.away}</small></div><div class="history-picks"><div class="history-my-pick">Πρόβλεψη: <strong>${pickLabel(pick,m)}</strong></div><div style="color:rgba(255,255,255,.45);font-size:12px;font-weight:700">Αποτέλεσμα: αναμένεται…</div></div><div class="history-points" style="font-size:22px;color:rgba(255,255,255,.4)">⏳</div></div>`;
       continue;
     }
-    const ok=pick===m.result; if(ok){totalPts+=3;correct++;}
-    rowsHtml+=`<div class="history-row ${ok?'h-correct':'h-wrong'}"><div class="history-match">${m.home}<small>⚽ ${m.away}</small></div><div class="history-picks"><div class="history-my-pick">Πρόβλεψη: <strong>${pickLabel(pick,m)}</strong></div><div class="history-result">Αποτέλεσμα: <strong>${pickLabel(m.result,m)}</strong></div></div><div class="history-points">${ok?'✅<br>+3':'❌<br>0'}</div></div>`;
+    const ok=pick===result; if(ok){totalPts+=3;correct++;}
+    rowsHtml+=`<div class="history-row ${ok?'h-correct':'h-wrong'}"><div class="history-match">${m.home}<small>⚽ ${m.away}</small></div><div class="history-picks"><div class="history-my-pick">Πρόβλεψη: <strong>${pickLabel(pick,m)}</strong></div><div class="history-result">Αποτέλεσμα: <strong>${pickLabel(result,m)}</strong></div></div><div class="history-points">${ok?'✅<br>+3':'❌<br>0'}</div></div>`;
   }
-  const finished=predicted.filter(m=>m.result!==null);
+  const finished=predicted.filter(m=>(liveResults[m.id]||null)!==null);
   const summary=finished.length?`<div class="history-summary">${correct} σωστές από ${finished.length} · <span style="color:#00ff88">${totalPts} πόντοι</span></div>`:'';
   document.getElementById('historyContent').innerHTML=summary+rowsHtml;
 }
@@ -722,6 +848,13 @@ function updateCountdown(){
   document.getElementById('cdS').textContent=pad(Math.floor((diff%60000)/1000));
 }
 
+function resultLabel(result, m){
+  if(!result) return '';
+  if(result==='home') return '🏠 ' + m.home;
+  if(result==='away') return '✈️ ' + m.away;
+  return '🤝 Ισοπαλία';
+}
+
 function buildSchedule(){
   const days={};
   for(const m of MATCHES){if(!days[m.date])days[m.date]=[];days[m.date].push(m);}
@@ -729,14 +862,100 @@ function buildSchedule(){
   for(const[date,ms]of Object.entries(days)){
     html+=`<div class="day-group"><div class="day-header">📅 ${DAY_NAMES[date]||date}</div>`;
     for(const m of ms){
-      const live=isLive(m),done=isDone(m);
+      const live=isLive(m),done=isDone(m), result=liveResults[m.id]||null;
       const chs=m.ch.map(c=>`<span class="ch ${c.includes('1')&&!c.includes('2')?'ch-ert1':'ch-ert2'}">${c}</span>`).join(' ');
-      let badge=live?'<span class="live-badge" style="font-size:13px;padding:6px 14px;">🔴 LIVE</span>':done&&m.result?`<span class="result-badge done">${m.result}</span>`:done?'<span class="result-badge done">✔</span>':'<span class="result-badge">vs</span>';
+      let badge=live?'<span class="live-badge" style="font-size:13px;padding:6px 14px;">🔴 LIVE</span>'
+        :result?`<span class="result-badge done">${resultLabel(result,m)}</span>`
+        :done?'<span class="result-badge done">✔</span>'
+        :'<span class="result-badge">vs</span>';
       html+=`<div class="match-row${live?' is-live':''}"><span class="match-time">${m.time}</span><div class="match-teams">${m.home}<span class="vs">⚽</span>${m.away}<div class="match-city">📍 ${m.city}</div></div>${badge} ${chs}</div>`;
     }
     html+='</div>';
   }
   document.getElementById('schedContainer').innerHTML=html;
+}
+
+/* ============================================================
+   ADMIN PANEL
+============================================================ */
+let adminBallClicks = 0, adminBallTimer = null;
+
+function adminBallClick(){
+  adminBallClicks++;
+  clearTimeout(adminBallTimer);
+  adminBallTimer = setTimeout(()=>{ adminBallClicks=0; }, 2000);
+  if(adminBallClicks >= 5){
+    adminBallClicks = 0;
+    // Show admin tab
+    const tabBar = document.getElementById('tabBar');
+    if(!document.getElementById('adminTabBtn')){
+      const btn = document.createElement('button');
+      btn.className = 'tab-btn admin-tab';
+      btn.id = 'adminTabBtn';
+      btn.textContent = '🔐 Admin';
+      btn.onclick = function(){ showTab('admin', this); };
+      tabBar.appendChild(btn);
+    }
+    // Switch to admin tab
+    showTab('admin', document.getElementById('adminTabBtn'));
+  }
+}
+
+function checkAdminPass(){
+  const val = document.getElementById('adminPassInput').value;
+  if(val === ADMIN_PASSWORD){
+    document.getElementById('adminLoginCard').style.display = 'none';
+    document.getElementById('adminPanel').style.display = '';
+    renderAdminMatchList();
+  } else {
+    document.getElementById('adminPassError').textContent = '❌ Λάθος κωδικός!';
+    document.getElementById('adminPassInput').value = '';
+  }
+}
+
+function adminLogout(){
+  document.getElementById('adminLoginCard').style.display = '';
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('adminPassInput').value = '';
+  document.getElementById('adminPassError').textContent = '';
+  // Hide admin tab button
+  const btn = document.getElementById('adminTabBtn');
+  if(btn) btn.remove();
+  showTab('home', document.querySelector('.tab-btn'));
+}
+
+function showAdminSaveBanner(){
+  const b = document.getElementById('adminSaveBanner');
+  b.style.display = '';
+  clearTimeout(b._timer);
+  b._timer = setTimeout(()=>{ b.style.display='none'; }, 2500);
+}
+
+function renderAdminMatchList(){
+  const el = document.getElementById('adminMatchList');
+  if(!el) return;
+  let html = '';
+  for(const m of MATCHES){
+    const result = liveResults[m.id] || null;
+    const resultText = result ? `Αποτέλεσμα: <strong>${result==='home'?m.home:result==='away'?m.away:'Ισοπαλία'}</strong>` : 'Χωρίς αποτέλεσμα';
+    html += `<div class="admin-match-card">
+      <div class="admin-match-title">${m.home} ⚽ ${m.away}</div>
+      <div class="admin-match-subtitle">📅 ${m.date.split('-').reverse().slice(0,2).join('/')} · ${m.time} · 📍 ${m.city}</div>
+      <div class="admin-btns">
+        <button class="admin-pick-btn ${result==='home'?'set-home':''}" onclick="setResult('${m.id}','home')">${m.home}<br><small>Κερδίζει</small></button>
+        <button class="admin-pick-btn ${result==='draw'?'set-draw':''}" onclick="setResult('${m.id}','draw')">🤝<br><small>Ισοπαλία</small></button>
+        <button class="admin-pick-btn ${result==='away'?'set-away':''}" onclick="setResult('${m.id}','away')">${m.away}<br><small>Κερδίζει</small></button>
+        <button class="admin-pick-btn clear-btn" onclick="setResult('${m.id}',null)">✕<br><small>Διαγραφή</small></button>
+      </div>
+      <div class="admin-current-result ${result?'has-result':''}">${resultText}</div>
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+
+async function setResult(matchId, result){
+  await saveResult(matchId, result);
+  // UI updates via the onSnapshot listener
 }
 
 /* ============================================================
@@ -807,14 +1026,8 @@ function restartQuiz(){initQuiz();}
 buildSchedule();
 updateCountdown();
 setInterval(updateCountdown,1000);
-setInterval(buildSchedule,60000);
-setInterval(()=>{
-  if(document.getElementById('tab-predictions').classList.contains('active')){
-    if(!USE_FIREBASE){allPlayersData=lsGetPreds();renderRanking();}
-    renderMatchCards();
-  }
-},30000);
 
+startResultsListener();
 startLeaderboardListener();
 
 (async()=>{
