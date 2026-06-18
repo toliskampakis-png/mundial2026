@@ -333,6 +333,18 @@
     <p style="text-align:center;color:rgba(255,255,255,.6);font-size:13px;font-weight:700;margin-bottom:14px;">
       Επέλεξε νικητή και (προαιρετικά) γράψε σκορ π.χ. <strong style="color:var(--gold)">2-1</strong>
     </p>
+    <div style="background:rgba(255,255,255,.07);border-radius:16px;padding:16px;margin-bottom:20px;">
+      <div class="section-title" style="color:#88d8ff;margin-bottom:8px;">🤖 Αυτόματα Αποτελέσματα</div>
+      <p style="text-align:center;color:rgba(255,255,255,.6);font-size:12px;margin-bottom:12px;">
+        Δωρεάν API από <a href="https://www.football-data.org/client/register" target="_blank" style="color:#88d8ff;">football-data.org</a> → αποθήκευσε το key και τα αποτελέσματα ενημερώνονται αυτόματα κάθε 5 λεπτά!
+      </p>
+      <div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;">
+        <input id="fdApiKeyInput" type="password" placeholder="Το API Key σου..." style="flex:1;min-width:180px;max-width:300px;padding:10px 14px;border-radius:12px;border:2px solid rgba(136,216,255,.4);background:rgba(255,255,255,.1);color:#fff;font-size:14px;">
+        <button onclick="saveFdApiKey()" style="background:linear-gradient(135deg,#88d8ff,#0099cc);color:#fff;border:none;border-radius:12px;padding:10px 18px;font-weight:700;cursor:pointer;white-space:nowrap;">💾 Αποθήκευση</button>
+        <button onclick="autoFetchResults();document.getElementById('fdStatus').textContent='⏳ Ανανέωση...';" style="background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;">🔄 Ανανέωση τώρα</button>
+      </div>
+      <div id="fdStatus" style="text-align:center;color:rgba(255,255,255,.5);font-size:12px;margin-top:10px;"></div>
+    </div>
     <div id="adminMatchList"></div>
     <div style="text-align:center;margin-top:20px;"><button class="btn-secondary" onclick="adminLogout()">🚪 Αποσύνδεση</button></div>
   </div>
@@ -396,6 +408,35 @@ const MATCHES = [
   { id:'m41', date:'2026-06-22', time:'20:00', home:'🇦🇷 Αργεντινή',         away:'🇦🇹 Αυστρία',           city:'Ντάλας',        ch:['ΕΡΤ2 ΣΠΟΡ'] },
   { id:'m42', date:'2026-06-23', time:'00:00', home:'🇫🇷 Γαλλία',            away:'🇮🇶 Ιράκ',              city:'Φιλαδέλφεια',   ch:['ΕΡΤ2 ΣΠΟΡ'] },
   { id:'m43', date:'2026-06-23', time:'03:00', home:'🇳🇴 Νορβηγία',          away:'🇸🇳 Σενεγάλη',          city:'Νέα Υόρκη',     ch:['ΕΡΤ1'] },
+  { id:'m44', date:'2026-06-23', time:'06:00', home:'🇯🇴 Ιορδανία',          away:'🇩🇿 Αλγερία',           city:'Κάνσας Σίτι',   ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m45', date:'2026-06-23', time:'20:00', home:'🇵🇹 Πορτογαλία',        away:'🇺🇿 Ουζμπεκιστάν',      city:'Φιλαδέλφεια',   ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m46', date:'2026-06-23', time:'23:00', home:'🏴󠁧󠁢󠁥󠁮󠁧󠁿 Αγγλία',           away:'🇬🇭 Γκάνα',             city:'Ντάλας',        ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m47', date:'2026-06-24', time:'02:00', home:'🇵🇦 Παναμάς',           away:'🇭🇷 Κροατία',           city:'Τορόντο',       ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m48', date:'2026-06-24', time:'05:00', home:'🇨🇴 Κολομβία',          away:'🇨🇩 Λ.Δ. Κονγκό',       city:'Σιάτλ',         ch:['ΕΡΤ1'] },
+  { id:'m49', date:'2026-06-24', time:'22:00', home:'🇨🇭 Ελβετία',           away:'🇨🇦 Καναδάς',           city:'Λος Άντζελες',  ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m50', date:'2026-06-24', time:'22:00', home:'🇧🇦 Βοσνία',            away:'🇶🇦 Κατάρ',             city:'Βανκούβερ',     ch:['ΕΡΤ1'] },
+  { id:'m51', date:'2026-06-25', time:'01:00', home:'🇲🇦 Μαρόκο',            away:'🇭🇹 Αϊτή',              city:'Γουαδαλαχάρα',  ch:['ΕΡΤ1'] },
+  { id:'m52', date:'2026-06-25', time:'01:00', home:'🏴󠁧󠁢󠁳󠁣󠁴󠁿 Σκωτία',           away:'🇧🇷 Βραζιλία',          city:'Χιούστον',      ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m53', date:'2026-06-25', time:'04:00', home:'🇿🇦 Ν. Αφρική',         away:'🇰🇷 Ν. Κορέα',          city:'Βοστώνη',       ch:['ΕΡΤ1'] },
+  { id:'m54', date:'2026-06-25', time:'04:00', home:'🇨🇿 Τσεχία',            away:'🇲🇽 Μεξικό',            city:'Αρλίνγκτον',    ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m55', date:'2026-06-25', time:'23:00', home:'🇪🇨 Εκουαδόρ',          away:'🇩🇪 Γερμανία',          city:'Μαϊάμι',        ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m56', date:'2026-06-25', time:'23:00', home:'🇨🇼 Κουρασάο',          away:'🇨🇮 Ακτή Ελεφ.',        city:'Κάνσας Σίτι',   ch:['ΕΡΤ1'] },
+  { id:'m57', date:'2026-06-26', time:'02:00', home:'🇹🇳 Τυνησία',           away:'🇳🇱 Ολλανδία',          city:'Μέξικο Σίτι',   ch:['ΕΡΤ1'] },
+  { id:'m58', date:'2026-06-26', time:'02:00', home:'🇯🇵 Ιαπωνία',           away:'🇸🇪 Σουηδία',           city:'Ατλάντα',       ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m59', date:'2026-06-26', time:'05:00', home:'🇹🇷 Τουρκία',           away:'🇺🇸 ΗΠΑ',               city:'Σαν Φρανσίσκο', ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m60', date:'2026-06-26', time:'05:00', home:'🇵🇾 Παραγουάη',         away:'🇦🇺 Αυστραλία',         city:'Νέα Υόρκη',     ch:['ΕΡΤ1'] },
+  { id:'m61', date:'2026-06-26', time:'22:00', home:'🇳🇴 Νορβηγία',          away:'🇫🇷 Γαλλία',            city:'Σιάτλ',         ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m62', date:'2026-06-26', time:'22:00', home:'🇸🇳 Σενεγάλη',          away:'🇮🇶 Ιράκ',              city:'Βοστώνη',       ch:['ΕΡΤ1'] },
+  { id:'m63', date:'2026-06-27', time:'03:00', home:'🇨🇻 Πράσινο Ακρωτήρι', away:'🇸🇦 Σαουδική Αραβία',   city:'Τορόντο',       ch:['ΕΡΤ1'] },
+  { id:'m64', date:'2026-06-27', time:'03:00', home:'🇺🇾 Ουρουγουάη',        away:'🇪🇸 Ισπανία',           city:'Φιλαδέλφεια',   ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m65', date:'2026-06-27', time:'06:00', home:'🇳🇿 Νέα Ζηλανδία',      away:'🇧🇪 Βέλγιο',            city:'Βανκούβερ',     ch:['ΕΡΤ1'] },
+  { id:'m66', date:'2026-06-27', time:'06:00', home:'🇪🇬 Αίγυπτος',          away:'🇮🇷 Ιράν',              city:'Μοντερέι',      ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m67', date:'2026-06-28', time:'00:00', home:'🇵🇦 Παναμάς',           away:'🏴󠁧󠁢󠁥󠁮󠁧󠁿 Αγγλία',          city:'Σαν Φρανσίσκο', ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m68', date:'2026-06-28', time:'00:00', home:'🇭🇷 Κροατία',           away:'🇬🇭 Γκάνα',             city:'Γουαδαλαχάρα',  ch:['ΕΡΤ1'] },
+  { id:'m69', date:'2026-06-28', time:'02:30', home:'🇨🇴 Κολομβία',          away:'🇵🇹 Πορτογαλία',        city:'Νέα Υόρκη',     ch:['ΕΡΤ2 ΣΠΟΡ'] },
+  { id:'m70', date:'2026-06-28', time:'02:30', home:'🇨🇩 Λ.Δ. Κονγκό',       away:'🇺🇿 Ουζμπεκιστάν',      city:'Ντάλας',        ch:['ΕΡΤ1'] },
+  { id:'m71', date:'2026-06-28', time:'05:00', home:'🇩🇿 Αλγερία',           away:'🇦🇹 Αυστρία',           city:'Μαϊάμι',        ch:['ΕΡΤ1'] },
+  { id:'m72', date:'2026-06-28', time:'05:00', home:'🇯🇴 Ιορδανία',          away:'🇦🇷 Αργεντινή',         city:'Κάνσας Σίτι',   ch:['ΕΡΤ2 ΣΠΟΡ'] },
 ];
 const DAY_NAMES = {
   '2026-06-11':'Πέμπτη 11/6 🎉 ΠΡΕΜΙΕΡΑ!','2026-06-12':'Παρασκευή 12/6',
@@ -403,6 +444,8 @@ const DAY_NAMES = {
   '2026-06-16':'Τρίτη 16/6','2026-06-17':'Τετάρτη 17/6','2026-06-18':'Πέμπτη 18/6',
   '2026-06-19':'Παρασκευή 19/6','2026-06-20':'Σάββατο 20/6','2026-06-21':'Κυριακή 21/6',
   '2026-06-22':'Δευτέρα 22/6','2026-06-23':'Τρίτη 23/6',
+  '2026-06-24':'Τετάρτη 24/6','2026-06-25':'Πέμπτη 25/6','2026-06-26':'Παρασκευή 26/6',
+  '2026-06-27':'Σάββατο 27/6','2026-06-28':'Κυριακή 28/6',
 };
 
 /* ===== QUIZ POOL ===== */
@@ -538,7 +581,7 @@ function startLeaderboardListener(){
   db.collection('players').onSnapshot(snap=>{
     snap.forEach(d=>{ allPlayersData[d.id]=d.data().picks||{}; });
     const p=getPlayer(); if(p&&currentPlayerReady) allPlayersData[p]={...allPlayersData[p],...currentPicks};
-    if(document.getElementById('tab-predictions').classList.contains('active')){ renderRanking(); renderAllPlayersHistory(); }
+    renderRanking(); renderAllPlayersHistory();
   },err=>{ allPlayersData=lsGetPreds(); renderRanking(); renderAllPlayersHistory(); });
 }
 
@@ -649,7 +692,7 @@ function renderRanking(){
     html+=`<tr class="${isMe?'row-me':i===0?'row-top1':''}">
       <td>${medals[i]||(i+1)+'.'}</td><td class="col-name">${r.name}${isMe?' 👈':''}</td>
       <td class="col-pts">${r.score}<small style="font-size:.6em;color:rgba(255,215,0,.65)"> pts</small></td>
-      <td class="col-det">${r.correct}/${r.total}</td>
+      <td class="col-det">${r.correct}/${r.total}${r.numPicks>r.total?'<small style="font-size:.6em;opacity:.5"> +'+( r.numPicks-r.total)+'⏳</small>':''}</td>
       <td class="col-acc">${r.accuracy!==null?r.accuracy+'%':'—'}</td></tr>`;
   });
   el.innerHTML=html+'</tbody></table>';
@@ -719,9 +762,16 @@ function updateCountdown(){
   document.getElementById('cdS').textContent=pad(Math.floor((diff%60000)/1000));
 }
 function buildSchedule(){
+  // Show only matches within ±2 days of today (EEST)
+  const nowEEST=new Date(Date.now()+3*3600000);
+  const todayStr=nowEEST.toISOString().slice(0,10);
+  const d2=new Date(nowEEST); d2.setDate(d2.getDate()-2); const minDate=d2.toISOString().slice(0,10);
+  const d3=new Date(nowEEST); d3.setDate(d3.getDate()+2); const maxDate=d3.toISOString().slice(0,10);
+  const visible=MATCHES.filter(m=>m.date>=minDate&&m.date<=maxDate||isLive(m));
   const days={};
-  for(const m of MATCHES){if(!days[m.date])days[m.date]=[];days[m.date].push(m);}
+  for(const m of visible){if(!days[m.date])days[m.date]=[];days[m.date].push(m);}
   let html='';
+  if(!Object.keys(days).length){html='<div style="text-align:center;padding:40px;color:rgba(255,255,255,.5)">📅 Δεν υπάρχουν αγώνες αυτές τις μέρες</div>';}
   for(const[date,ms]of Object.entries(days)){
     html+=`<div class="day-group"><div class="day-header">📅 ${DAY_NAMES[date]||date}</div>`;
     for(const m of ms){
@@ -949,6 +999,79 @@ async function loadQuizLeaderboard(){
   }
 }
 
+/* ===== FOOTBALL-DATA.ORG AUTO FETCH ===== */
+let _fdApiKey='', _fdFetchTimer=null, _fdLastFetch=0;
+
+async function autoFetchResults(){
+  if(!_fdApiKey||!USE_FIREBASE)return;
+  const now=Date.now();
+  if(now-_fdLastFetch<4*60*1000)return; // max once per 4 min
+  _fdLastFetch=now;
+  try{
+    const res=await fetch('https://api.football-data.org/v4/competitions/WC/matches?status=FINISHED',{
+      headers:{'X-Auth-Token':_fdApiKey}
+    });
+    if(!res.ok){console.log('FD API error:',res.status);return;}
+    const data=await res.json();
+    const apiMap={};
+    for(const m of data.matches||[]){
+      if(m.score&&m.score.winner&&m.score.winner!=='null'&&m.status==='FINISHED'){
+        const winner=m.score.winner==='HOME_TEAM'?'home':m.score.winner==='AWAY_TEAM'?'away':'draw';
+        const score=m.score.fullTime?m.score.fullTime.home+'-'+m.score.fullTime.away:'';
+        apiMap[m.utcDate.replace('.000Z','Z')]={winner,score};
+      }
+    }
+    const results={};
+    for(const m of MATCHES){
+      const utc=matchDT(m).toISOString().replace('.000Z','Z');
+      if(apiMap[utc]){
+        results[m.id]=apiMap[utc].winner;
+        if(apiMap[utc].score)results[m.id+'_score']=apiMap[utc].score;
+      }
+    }
+    if(Object.keys(results).length>0){
+      await db.collection('config').doc('results').set(results,{merge:true});
+      const el=document.getElementById('fdStatus');
+      if(el)el.textContent='✅ Βρέθηκαν '+Object.keys(results).filter(k=>!k.includes('_')).length+' αποτελέσματα - '+new Date().toLocaleTimeString('el-GR');
+    } else {
+      const el=document.getElementById('fdStatus');
+      if(el)el.textContent='ℹ️ Καμία αλλαγή - '+new Date().toLocaleTimeString('el-GR');
+    }
+  }catch(e){console.log('FD fetch error:',e);}
+}
+
+async function loadFdApiKey(){
+  if(!USE_FIREBASE)return;
+  try{
+    const doc=await db.collection('config').doc('settings').get();
+    if(doc.exists&&doc.data().fdApiKey){
+      _fdApiKey=doc.data().fdApiKey;
+      const inp=document.getElementById('fdApiKeyInput');
+      if(inp)inp.value='••••••••';
+      startFdAutoFetch();
+    }
+  }catch(e){}
+}
+
+async function saveFdApiKey(){
+  const val=document.getElementById('fdApiKeyInput').value.trim();
+  if(!val||val==='••••••••'){alert('Εισάγετε έγκυρο API key!');return;}
+  if(!USE_FIREBASE){alert('Firebase δεν είναι συνδεδεμένο!');return;}
+  try{
+    await db.collection('config').doc('settings').set({fdApiKey:val},{merge:true});
+    _fdApiKey=val;
+    document.getElementById('fdApiKeyInput').value='••••••••';
+    document.getElementById('fdStatus').textContent='✅ API Key αποθηκεύτηκε!';
+    startFdAutoFetch();
+  }catch(e){alert('Σφάλμα: '+e.message);}
+}
+
+function startFdAutoFetch(){
+  if(_fdFetchTimer)clearInterval(_fdFetchTimer);
+  autoFetchResults();
+  _fdFetchTimer=setInterval(autoFetchResults,5*60*1000);
+}
+
 /* ===== INIT ===== */
 buildSchedule();
 updateCountdown();
@@ -957,6 +1080,7 @@ setInterval(updateCountdown, 1000);
 setInterval(()=>{ if(document.getElementById('tab-quiz').classList.contains('active')) loadQuizLeaderboard(); }, 5*60*1000);
 startResultsListener();
 startLeaderboardListener();
+loadFdApiKey();
 // Init quiz screen
 onQuizTabShow();
 (async()=>{
