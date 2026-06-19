@@ -341,7 +341,7 @@
       <div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;">
         <input id="fdApiKeyInput" type="password" placeholder="Το API Key σου..." style="flex:1;min-width:180px;max-width:300px;padding:10px 14px;border-radius:12px;border:2px solid rgba(136,216,255,.4);background:rgba(255,255,255,.1);color:#fff;font-size:14px;">
         <button onclick="saveFdApiKey()" style="background:linear-gradient(135deg,#88d8ff,#0099cc);color:#fff;border:none;border-radius:12px;padding:10px 18px;font-weight:700;cursor:pointer;white-space:nowrap;">💾 Αποθήκευση</button>
-        <button onclick="autoFetchResults();document.getElementById('fdStatus').textContent='⏳ Ανανέωση...';" style="background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;">🔄 Ανανέωση τώρα</button>
+        <button onclick="_fdLastFetch=0;autoFetchResults();" style="background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;">🔄 Ανανέωση τώρα</button>
       </div>
       <div id="fdStatus" style="text-align:center;color:rgba(255,255,255,.5);font-size:12px;margin-top:10px;"></div>
     </div>
