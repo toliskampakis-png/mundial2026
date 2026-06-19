@@ -336,12 +336,10 @@
     <div style="background:rgba(255,255,255,.07);border-radius:16px;padding:16px;margin-bottom:20px;">
       <div class="section-title" style="color:#88d8ff;margin-bottom:8px;">🤖 Αυτόματα Αποτελέσματα</div>
       <p style="text-align:center;color:rgba(255,255,255,.6);font-size:12px;margin-bottom:12px;">
-        Δωρεάν API από <a href="https://www.football-data.org/client/register" target="_blank" style="color:#88d8ff;">football-data.org</a> → αποθήκευσε το key και τα αποτελέσματα ενημερώνονται αυτόματα κάθε 5 λεπτά!
+        Τα αποτελέσματα ανανεώνονται αυτόματα κάθε 5 λεπτά (ESPN API · δεν χρειάζεται εγγραφή)
       </p>
       <div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;">
-        <input id="fdApiKeyInput" type="password" placeholder="Το API Key σου..." style="flex:1;min-width:180px;max-width:300px;padding:10px 14px;border-radius:12px;border:2px solid rgba(136,216,255,.4);background:rgba(255,255,255,.1);color:#fff;font-size:14px;">
-        <button onclick="saveFdApiKey()" style="background:linear-gradient(135deg,#88d8ff,#0099cc);color:#fff;border:none;border-radius:12px;padding:10px 18px;font-weight:700;cursor:pointer;white-space:nowrap;">💾 Αποθήκευση</button>
-        <button onclick="_fdLastFetch=0;autoFetchResults();" style="background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;">🔄 Ανανέωση τώρα</button>
+        <button onclick="_fdLastFetch=0;autoFetchResults();" style="background:linear-gradient(135deg,#88d8ff,#0099cc);color:#fff;border:none;border-radius:12px;padding:12px 24px;font-weight:700;cursor:pointer;font-size:15px;">🔄 Ανανέωση αποτελεσμάτων τώρα</button>
       </div>
       <div id="fdStatus" style="text-align:center;color:rgba(255,255,255,.5);font-size:12px;margin-top:10px;"></div>
     </div>
@@ -1003,57 +1001,59 @@ async function loadQuizLeaderboard(){
 let _fdApiKey='', _fdFetchTimer=null, _fdLastFetch=0;
 
 async function autoFetchResults(){
-  if(!_fdApiKey||!USE_FIREBASE)return;
+  if(!USE_FIREBASE)return;
   const now=Date.now();
-  if(now-_fdLastFetch<4*60*1000)return; // max once per 4 min
+  if(now-_fdLastFetch<4*60*1000)return;
   _fdLastFetch=now;
   const setStatus=msg=>{const el=document.getElementById('fdStatus');if(el)el.textContent=msg;};
   try{
     setStatus('⏳ Φόρτωση αποτελεσμάτων...');
-    // fetch all matches (not just FINISHED) to catch AWARDED, etc. Add season=2026 explicitly
-    const apiUrl='https://api.football-data.org/v4/competitions/WC/matches?season=2026';
-    const res=await fetch('https://corsproxy.io/?'+encodeURIComponent(apiUrl),{
-      headers:{'X-Auth-Token':_fdApiKey}
-    });
-    if(!res.ok){
-      const err=await res.json().catch(()=>({}));
-      setStatus('❌ API σφάλμα '+res.status+': '+(err.message||''));
-      console.log('FD API error:',res.status,err);
-      return;
-    }
-    const data=await res.json();
+    // ESPN public API - no key needed, CORS-friendly
     const apiMap={};
-    for(const m of data.matches||[]){
-      const finished=m.status==='FINISHED'||m.status==='AWARDED';
-      if(finished&&m.score&&m.score.winner&&m.score.winner!=='null'&&m.score.winner!==null){
-        const winner=m.score.winner==='HOME_TEAM'?'home':m.score.winner==='AWAY_TEAM'?'away':'draw';
-        const ft=m.score.fullTime;
-        const score=(ft&&ft.home!=null)?ft.home+'-'+ft.away:'';
-        // Normalize both +00:00 and Z formats to bare Z
-        const key=m.utcDate.replace('+00:00','Z').replace('.000Z','Z');
-        apiMap[key]={winner,score};
-      }
+    const nowEEST=new Date(Date.now()+3*3600000);
+    for(let i=0;i<=3;i++){
+      const d=new Date(nowEEST); d.setDate(d.getDate()-i);
+      const dateStr=d.toISOString().slice(0,10).replace(/-/g,'');
+      try{
+        const r=await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/FIFA.WORLD/scoreboard?dates='+dateStr+'&limit=50');
+        if(!r.ok)continue;
+        const data=await r.json();
+        for(const ev of data.events||[]){
+          const comp=ev.competitions?.[0]; if(!comp)continue;
+          const sName=comp.status?.type?.name||'';
+          if(!sName.includes('FINAL')&&!sName.includes('FULL_TIME')&&sName!=='STATUS_FINAL_PEN'&&sName!=='STATUS_FT')continue;
+          const home=comp.competitors?.find(c=>c.homeAway==='home');
+          const away=comp.competitors?.find(c=>c.homeAway==='away');
+          if(!home||!away)continue;
+          const hs=parseInt(home.score),as=parseInt(away.score);
+          if(isNaN(hs)||isNaN(as))continue;
+          const winner=hs>as?'home':as>hs?'away':'draw';
+          const score=hs+'-'+as;
+          // Normalize ESPN date to "YYYY-MM-DDTHH:MM:SSZ"
+          const key=ev.date.replace('+00:00','Z').replace('.000Z','Z').replace(/T(\d{2}:\d{2})Z$/,'T$1:00Z');
+          apiMap[key]={winner,score};
+        }
+      }catch(e2){console.log('ESPN day error:',e2);}
     }
-    console.log('FD: total matches',data.matches?.length,'finished',Object.keys(apiMap).length,'sample key',Object.keys(apiMap)[0]);
+    console.log('ESPN finished matches:',Object.keys(apiMap).length,Object.keys(apiMap).slice(0,3));
     const results={};
     for(const m of MATCHES){
       const utc=matchDT(m).toISOString().replace('.000Z','Z');
-      if(apiMap[utc]){
-        results[m.id]=apiMap[utc].winner;
-        if(apiMap[utc].score)results[m.id+'_score']=apiMap[utc].score;
-      }
+      if(apiMap[utc]){results[m.id]=apiMap[utc].winner;if(apiMap[utc].score)results[m.id+'_score']=apiMap[utc].score;}
     }
     const count=Object.keys(results).filter(k=>!k.includes('_')).length;
     if(count>0){
       await db.collection('config').doc('results').set(results,{merge:true});
       setStatus('✅ '+count+' αποτελέσματα ανανεώθηκαν - '+new Date().toLocaleTimeString('el-GR'));
     } else {
-      setStatus('ℹ️ Δεν βρέθηκαν ολοκληρωμένοι αγώνες - '+new Date().toLocaleTimeString('el-GR'));
+      setStatus('ℹ️ Δεν βρέθηκαν αποτελέσματα - '+new Date().toLocaleTimeString('el-GR'));
     }
-  }catch(e){setStatus('❌ Σφάλμα: '+e.message);console.log('FD fetch error:',e);}
+  }catch(e){setStatus('❌ Σφάλμα: '+e.message);console.log('ESPN fetch error:',e);}
 }
 
 async function loadFdApiKey(){
+  // ESPN API needs no key - just start auto fetch
+  startFdAutoFetch();
   if(!USE_FIREBASE)return;
   try{
     const doc=await db.collection('config').doc('settings').get();
@@ -1061,7 +1061,6 @@ async function loadFdApiKey(){
       _fdApiKey=doc.data().fdApiKey;
       const inp=document.getElementById('fdApiKeyInput');
       if(inp)inp.value='••••••••';
-      startFdAutoFetch();
     }
   }catch(e){}
 }
