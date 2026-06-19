@@ -1011,7 +1011,8 @@ async function autoFetchResults(){
   try{
     setStatus('⏳ Φόρτωση αποτελεσμάτων...');
     // fetch all matches (not just FINISHED) to catch AWARDED, etc. Add season=2026 explicitly
-    const res=await fetch('https://api.football-data.org/v4/competitions/WC/matches?season=2026',{
+    const apiUrl='https://api.football-data.org/v4/competitions/WC/matches?season=2026';
+    const res=await fetch('https://corsproxy.io/?'+encodeURIComponent(apiUrl),{
       headers:{'X-Auth-Token':_fdApiKey}
     });
     if(!res.ok){
