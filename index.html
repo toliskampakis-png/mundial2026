@@ -1007,20 +1007,33 @@ async function autoFetchResults(){
   const now=Date.now();
   if(now-_fdLastFetch<4*60*1000)return; // max once per 4 min
   _fdLastFetch=now;
+  const setStatus=msg=>{const el=document.getElementById('fdStatus');if(el)el.textContent=msg;};
   try{
-    const res=await fetch('https://api.football-data.org/v4/competitions/WC/matches?status=FINISHED',{
+    setStatus('⏳ Φόρτωση αποτελεσμάτων...');
+    // fetch all matches (not just FINISHED) to catch AWARDED, etc. Add season=2026 explicitly
+    const res=await fetch('https://api.football-data.org/v4/competitions/WC/matches?season=2026',{
       headers:{'X-Auth-Token':_fdApiKey}
     });
-    if(!res.ok){console.log('FD API error:',res.status);return;}
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      setStatus('❌ API σφάλμα '+res.status+': '+(err.message||''));
+      console.log('FD API error:',res.status,err);
+      return;
+    }
     const data=await res.json();
     const apiMap={};
     for(const m of data.matches||[]){
-      if(m.score&&m.score.winner&&m.score.winner!=='null'&&m.status==='FINISHED'){
+      const finished=m.status==='FINISHED'||m.status==='AWARDED';
+      if(finished&&m.score&&m.score.winner&&m.score.winner!=='null'&&m.score.winner!==null){
         const winner=m.score.winner==='HOME_TEAM'?'home':m.score.winner==='AWAY_TEAM'?'away':'draw';
-        const score=m.score.fullTime?m.score.fullTime.home+'-'+m.score.fullTime.away:'';
-        apiMap[m.utcDate.replace('.000Z','Z')]={winner,score};
+        const ft=m.score.fullTime;
+        const score=(ft&&ft.home!=null)?ft.home+'-'+ft.away:'';
+        // Normalize both +00:00 and Z formats to bare Z
+        const key=m.utcDate.replace('+00:00','Z').replace('.000Z','Z');
+        apiMap[key]={winner,score};
       }
     }
+    console.log('FD: total matches',data.matches?.length,'finished',Object.keys(apiMap).length,'sample key',Object.keys(apiMap)[0]);
     const results={};
     for(const m of MATCHES){
       const utc=matchDT(m).toISOString().replace('.000Z','Z');
@@ -1029,15 +1042,14 @@ async function autoFetchResults(){
         if(apiMap[utc].score)results[m.id+'_score']=apiMap[utc].score;
       }
     }
-    if(Object.keys(results).length>0){
+    const count=Object.keys(results).filter(k=>!k.includes('_')).length;
+    if(count>0){
       await db.collection('config').doc('results').set(results,{merge:true});
-      const el=document.getElementById('fdStatus');
-      if(el)el.textContent='✅ Βρέθηκαν '+Object.keys(results).filter(k=>!k.includes('_')).length+' αποτελέσματα - '+new Date().toLocaleTimeString('el-GR');
+      setStatus('✅ '+count+' αποτελέσματα ανανεώθηκαν - '+new Date().toLocaleTimeString('el-GR'));
     } else {
-      const el=document.getElementById('fdStatus');
-      if(el)el.textContent='ℹ️ Καμία αλλαγή - '+new Date().toLocaleTimeString('el-GR');
+      setStatus('ℹ️ Δεν βρέθηκαν ολοκληρωμένοι αγώνες - '+new Date().toLocaleTimeString('el-GR'));
     }
-  }catch(e){console.log('FD fetch error:',e);}
+  }catch(e){setStatus('❌ Σφάλμα: '+e.message);console.log('FD fetch error:',e);}
 }
 
 async function loadFdApiKey(){
